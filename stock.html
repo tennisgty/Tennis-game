@@ -3,411 +3,451 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber Taiwan 2026: 少年股神霓虹終極版</title>
+    <title>少年股神：全倉進場 2026</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #02040a; overflow: hidden; touch-action: none; font-family: 'PingFang TC', 'Microsoft JhengHei', monospace; color: #fff; -webkit-user-select: none; user-select: none; }
-        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top:0; left:0; z-index: 1; }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        body {
+            margin: 0; padding: 0; background-color: #0d0e15; color: #fff;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            overflow: hidden; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 100vh;
+        }
+        #game-container {
+            position: relative; width: 100%; max-width: 420px; height: 100vh;
+            background: #0d0e15; display: flex; flex-direction: column; overflow: hidden;
+        }
+        canvas { background: #131520; display: block; width: 100%; height: 100%; }
         
-        .rpg-screen {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(3, 5, 15, 0.96); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
-            padding: 20px; z-index: 9999;
+        /* 介面遮罩 */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(13, 14, 21, 0.95); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100; padding: 20px;
+            text-align: center;
         }
         .hidden { display: none !important; }
         
-        h1 { font-size: 28px; color: #39ff14; text-shadow: 0 0 15px #39ff14; margin: 0 0 5px 0; font-weight: 900; letter-spacing: 1px; }
-        .sub-title { color: #ff007f; font-weight: bold; margin-bottom: 20px; font-size: 13px; letter-spacing: 2px; text-shadow: 0 0 8px rgba(255,0,127,0.3); }
+        .title { font-size: 28px; font-weight: 900; color: #39ff14; text-shadow: 0 0 10px #39ff14; margin-bottom: 5px; }
+        .subtitle { font-size: 14px; color: #888; margin-bottom: 25px; }
         
-        .char-grid { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; margin: 10px 0; }
-        .char-card { background: #0f172a; border: 2px solid #1e293b; border-radius: 14px; padding: 14px; text-align: left; cursor: pointer; transition: all 0.2s ease; }
-        .char-card:hover, .char-card:active { transform: scale(0.98); border-color: #39ff14; box-shadow: 0 0 15px rgba(57,255,20,0.2); }
-        .char-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; margin-bottom: 5px; }
-        .char-desc { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+        /* 角色選擇卡片 */
+        .hero-select-container { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        .hero-card {
+            background: #1a1d2e; border: 2px solid #2f3456; border-radius: 12px;
+            padding: 15px; display: flex; align-items: center; cursor: pointer;
+            transition: all 0.2s ease; position: relative;
+        }
+        .hero-card:active { transform: scale(0.98); background: #22273f; }
+        .hero-avatar { font-size: 32px; margin-right: 15px; }
+        .hero-info { text-align: left; flex: 1; }
+        .hero-name { font-size: 18px; font-weight: bold; color: #fff; }
+        .hero-desc { font-size: 12px; color: #aaa; margin-top: 3px; }
+        .hero-ability { font-size: 11px; color: #00ffff; margin-top: 5px; font-weight: bold; }
         
-        .market-container { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; margin-bottom: 20px; }
-        .chip-card { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 14px; border-radius: 14px; border: 1px solid #1e293b; }
-        
-        .buy-btn { background: #39ff14; color: #000; border: none; padding: 8px 16px; font-weight: bold; border-radius: 8px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
-        .buy-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
-        .btn-prime { padding: 14px 45px; font-size: 16px; font-weight: bold; background: #ff007f; color: #fff; border: none; border-radius: 30px; box-shadow: 0 0 25px rgba(255,0,127,0.6); margin: 10px 0; cursor: pointer; transition: transform 0.1s; }
-        .btn-prime:active { transform: scale(0.95); }
-        
-        .talent-grid { display: flex; flex-direction: column; gap: 12px; max-width: 420px; width: 100%; margin-top: 15px; }
-        .talent-card { background: #0f172a; border: 1px solid #334155; padding: 14px; border-radius: 14px; text-align: left; cursor: pointer; }
-        .talent-card:active { border-color: #ff007f; background: #1e1b4b; }
+        /* 顏色樣式 */
+        .card-all-in { border-color: #ff4757; }
+        .card-all-in .hero-name { color: #ff4757; }
+        .card-day { border-color: #ffa502; }
+        .card-day .hero-name { color: #ffa502; }
+        .card-value { border-color: #2ed573; border-color: #00ffff; }
+        .card-value .hero-name { color: #00ffff; }
 
-        #combatHud { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #39ff14; pointer-events: none; z-index: 50; font-family: monospace; }
-        .hud-panel { background: rgba(10, 15, 30, 0.93); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(57, 255, 20, 0.5); box-shadow: 0 0 10px rgba(57,255,20,0.1); }
-        .perk-badge { display: inline-block; background: #ff007f; color: #fff; padding: 2px 6px; border-radius: 5px; font-size: 10px; margin-left: 4px; box-shadow: 0 0 5px #ff007f; }
+        /* 結算畫面設計 */
+        .settle-score { font-size: 32px; font-weight: 900; color: #ff4757; margin: 15px 0; }
+        .input-name {
+            width: 80%; padding: 12px; background: #1a1d2e; border: 2px solid #39ff14;
+            color: #fff; font-size: 16px; border-radius: 8px; text-align: center; margin-bottom: 15px;
+            outline: none;
+        }
+        .btn {
+            width: 80%; padding: 14px; font-size: 16px; font-weight: bold; border: none;
+            border-radius: 25px; cursor: pointer; margin-top: 10px; color: #000;
+            background: linear-gradient(90deg, #39ff14, #00ffff); box-shadow: 0 0 10px rgba(57,255,20,0.5);
+        }
+        .btn-back {
+            background: #222; color: #aaa; box-shadow: none; border: 1px solid #444; margin-top: 15px;
+        }
         
-        .score-box { background: rgba(57, 255, 20, 0.05); border: 2px dashed #39ff14; padding: 16px 30px; border-radius: 12px; margin: 15px 0; font-size: 22px; font-weight: bold; color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.5); }
-        .name-input { background: #0f172a; border: 2px solid #ff007f; color: #fff; padding: 12px; border-radius: 10px; width: 85%; max-width: 280px; text-align: center; font-size: 16px; margin-bottom: 25px; outline: none; box-shadow: 0 0 10px rgba(255,0,127,0.2); }
-        .name-input:focus { border-color: #39ff14; box-shadow: 0 0 15px rgba(57,255,20,0.3); }
-        .leaderboard-table { width: 100%; max-width: 420px; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        .leaderboard-table th { color: #ff007f; border-bottom: 2px solid #1e293b; padding: 12px 8px; text-align: left; }
-        .leaderboard-table td { padding: 12px 8px; border-bottom: 1px solid #1e293b; text-align: left; }
-
-        #metaAlert { position: absolute; top: 25%; left: 0; width: 100vw; text-align: center; color: #ff0055; font-size: 24px; font-weight: bold; text-shadow: 0 0 25px #ff0055; z-index: 4; pointer-events: none; display: none; animation: blink 0.5s infinite alternate; }
-        #rewindIndicator { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #f59e0b; animation: blink 1s infinite alternate; pointer-events: none; z-index: 5; display: none; text-align: center; width: 85%; max-width: 300px; box-shadow: 0 0 10px rgba(245,158,11,0.2); }
-        @keyframes blink { from { opacity: 0.4; } to { opacity: 1; } }
+        /* 排行榜 */
+        .rank-list { width: 90%; background: #141622; border: 1px solid #222; border-radius: 8px; padding: 10px; margin-top: 15px; text-align: left; }
+        .rank-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #222; font-size: 13px; }
+        .rank-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
 
-    <div id="metaAlert">⚠️ 警告：主力終極大盤清算降臨 ⚠️</div>
-    <div id="rewindIndicator">⚡ 雙擊螢幕：觸發「違約交割時空倒帶術」 ⚡</div>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
 
-    <div id="combatHud" class="hidden">
-        <div class="hud-panel">波段：<span id="hudFloor" style="color:#f59e0b">01</span><div id="hudPerks"></div></div>
-        <div class="hud-panel">當前身價：<span id="hudScore" style="color:#39ff14">0</span></div>
-        <div class="hud-panel" style="color:#ff0055">維持率：<span id="hudHp">100</span>%</div>
-    </div>
+        <div id="menu-overlay" class="overlay">
+            <div class="title">少年股神</div>
+            <div class="subtitle">全倉進場 · 賽博斷頭割草大戰 2026</div>
+            
+            <div class="hero-select-container">
+                <div class="hero-card card-all-in" data-hero="allin">
+                    <div class="hero-avatar">🔥</div>
+                    <div class="hero-info">
+                        <div class="hero-name">新莊少年股神（歐印流）</div>
+                        <div class="hero-desc">開局自帶融資開滿氣勢。一張不賣，奇蹟自來！</div>
+                        <div class="hero-ability">✨ 特殊技：不當賠·違約交割時空術（冷卻: 12秒）</div>
+                    </div>
+                </div>
+                
+                <div class="hero-card card-day" data-hero="daytrade">
+                    <div class="hero-avatar">⚡</div>
+                    <div class="hero-info">
+                        <div class="hero-name">竹科工程師（當沖女王）</div>
+                        <div class="hero-desc">絕不留倉過夜！極致的手速與爆發力。</div>
+                        <div class="hero-ability">✨ 特殊技：萬能週轉金彈幕（冷卻: 8秒）</div>
+                    </div>
+                </div>
 
-    <div id="screenIntro" class="rpg-screen">
-        <h1>CYBER TAIWAN 2026</h1>
-        <div class="sub-title">// 選擇你的台股少年股神流派 //</div>
-        
-        <div class="char-grid">
-            <div class="char-card" style="border-color: #39ff14; box-shadow: 0 0 15px rgba(57,255,20,0.15);" onclick="safeSelectHero('leon', '#39ff14', '#39ff14')">
-                <div class="char-header" style="color: #39ff14;"><span>🧑‍💻 歐印流核心 · Leon</span><span style="font-size:11px;background:rgba(57,255,20,0.15);padding:2px 6px;border-radius:4px;">高爆雷射</span></div>
-                <div class="char-desc">天生獲得高機率內線暴擊！手持「巨量通膨爆破雷射」，擊中時會彈出巨型金錢迷因文字，傷害極高。</div>
+                <div class="hero-card card-value" data-hero="value">
+                    <div class="hero-avatar">💎</div>
+                    <div class="hero-info">
+                        <div class="hero-name">公園冷靜大叔（價值投資）</div>
+                        <div class="hero-desc">手握大把高股息，防禦力驚人，越跌我越買。</div>
+                        <div class="hero-ability">✨ 特殊技：無痛填息護體盾（冷卻: 15秒）</div>
+                    </div>
+                </div>
             </div>
-            <div class="char-card" style="border-color: #ff007f; box-shadow: 0 0 15px rgba(255,0,127,0.15);" onclick="safeSelectHero('chloe', '#ff007f', '#ff007f')">
-                <div class="char-header" style="color: #ff007f;"><span>👩‍🎤 當沖女王 · Chloe</span><span style="font-size:11px;background:rgba(255,0,127,0.15);padding:2px 6px;border-radius:4px;">散彈追蹤</span></div>
-                <div class="char-desc">初始射速提升 60%。開火時觸發「V字雙重擴散追蹤彈」，子彈自動咬死主力，體驗瘋狂洗版割草。</div>
-            </div>
-            <div class="char-card" style="border-color: #00ffff; box-shadow: 0 0 15px rgba(0,255,255,0.15);" onclick="safeSelectHero('sigma', '#00ffff', '#00ffff')">
-                <div class="char-header" style="color: #00ffff;"><span>🤖 量化交易 · AI巨鯨</span><span style="font-size:11px;background:rgba(0,255,255,0.15);padding:2px 6px;border-radius:4px;">雙浮游砲</span></div>
-                <div class="char-desc">自帶兩架高能散戶浮游砲，浮游砲會自主鎖定血量最高的主力進行智能射擊，建立交叉防禦火網。</div>
-            </div>
+            
+            <a href="index.html" class="btn btn-back" style="text-decoration:none; width:85%; max-width:350px;">🎾 返回重砲發球訓練場</a>
         </div>
-        <div style="color: #64748b; font-size: 11px; margin-top: 10px;">💡 提示：雙擊螢幕可倒帶時空 3 秒，拒絕融資斷頭睡公園！</div>
-    </div>
 
-    <div id="screenHub" class="rpg-screen hidden">
-        <h1>[ 台灣韭菜地下交易所 ]</h1>
-        <p>可用核心晶片 (CORES): <span id="hubPoints" style="color:#f59e0b; font-weight:bold; font-size:22px;">0</span></p>
-        
-        <div class="market-container">
-            <div class="chip-card">
-                <div class="chip-info">
-                    <div class="chip-name" style="color:#39ff14; font-weight:bold;">🇹🇼 台積電 2奈米旗艦晶片 <span id="lvlOVERCLOCK" style="color:#fff;">Lv.0</span></div>
-                    <div style="color:#94a3b8; font-size:11px; margin-top:4px;">每級暴增 120% 基礎輸出！Lv.3 解鎖全螢幕粒子過載。</div>
-                </div>
-                <div>
-                    <span class="chip-cost" style="font-size:12px; margin-right:5px;"><span id="costOVERCLOCK">12</span> 核</span> 
-                    <button id="btnOVERCLOCK" class="buy-btn" onclick="safeBuyChip('OVERCLOCK', 12)">升級</button>
-                </div>
+        <div id="settle-overlay" class="overlay hidden">
+            <div id="settle-title" class="title" style="color:#ff4757; text-shadow:0 0 10px #ff4757;">融資斷頭悲情清算</div>
+            <div class="subtitle">少年股神，你的身價已淪為壁紙...</div>
+            <div id="settle-score" class="settle-score">$0</div>
+            
+            <input type="text" id="player-name" class="input-name" placeholder="請留名以資警惕（如: 11沒袋子）" maxLength="10">
+            <button id="btn-save" class="btn">💥 紀錄並寫入歷史富豪榜</button>
+            
+            <div class="rank-list">
+                <div style="font-weight:bold; color:#00ffff; margin-bottom:5px; font-size:14px; text-align:center;">🏆 歷史富豪（韭菜）榜</div>
+                <div id="rank-items-box"></div>
             </div>
-            <div class="chip-card">
-                <div class="chip-info">
-                    <div class="chip-name" style="color:#ff007f; font-weight:bold;">⚡ 違約交割極限開槓桿 <span id="lvlHYPERDRIVE" style="color:#fff;">Lv.0</span></div>
-                    <div style="color:#94a3b8; font-size:11px; margin-top:4px;">瘋狂縮短武器開火間隔！射速快到肉眼無法捕捉。</div>
-                </div>
-                <div>
-                    <span class="chip-cost" style="font-size:12px; margin-right:5px;"><span id="costHYPERDRIVE">4</span> 核</span> 
-                    <button id="btnHYPERDRIVE" class="buy-btn" onclick="safeBuyChip('HYPERDRIVE', 4)">升級</button>
-                </div>
-            </div>
-            <div class="chip-card">
-                <div class="chip-info">
-                    <div class="chip-name" style="color:#a855f7; font-weight:bold;">🛸 散戶組團護盤浮游砲 <span id="lvlDRONE" style="color:#fff;">Lv.0</span></div>
-                    <div style="color:#94a3b8; font-size:11px; margin-top:4px;">增加或升級浮游砲火力。高階觸發 AI 數據流自動穿透。</div>
-                </div>
-                <div>
-                    <span class="chip-cost" style="font-size:12px; margin-right:5px;"><span id="costDRONE">5</span> 核</span> 
-                    <button id="btnDRONE" class="buy-btn" onclick="safeBuyChip('DRONE', 5)">升級</button>
-                </div>
-            </div>
-        </div>
-        
-        <button class="btn-prime" style="background:#39ff14; color:#000; box-shadow:0 0 25px #39ff14;" onclick="safeStartCombat()">解鎖融資 · 全倉進場</button>
-    </div>
-
-    <div id="screenTalent" class="rpg-screen hidden" style="border: 2px solid #ff007f;">
-        <h1 style="color:#ff007f;">[ Rogue-lite 非法溢價外掛 ]</h1>
-        <div style="color:#39ff14; font-size:13px; margin-bottom:15px;">外資主力大崩盤！請下載一項非法進階協議：</div>
-        <div class="talent-grid" id="talentOptions"></div>
-    </div>
-
-    <div id="screenGameOver" class="rpg-screen hidden">
-        <h1 style="color:#ff0055; text-shadow:0 0 15px #ff0055;">💥 融資斷頭！悲情清算 💥</h1>
-        <p style="color:#94a3b8; font-size:13px; margin:5px 0;">你的操作維持率已完全歸零（含淚準備睡公園）。</p>
-        
-        <div class="score-box">
-            最終結算身價：$<span id="finalScoreText">0</span>
-        </div>
-        
-        <p style="color:#38bdf8; font-size:12px; margin-bottom:10px;">請輸入你的股神稱號登錄富豪榜：</p>
-        <input type="text" id="playerNameInput" class="name-input" placeholder="例如：少年股神" maxlength="10">
-        
-        <button class="btn-prime" style="background:#39ff14; color:#000; box-shadow:0 0 20px #39ff14;" onclick="safeSaveLeaderboard()">提交身價並查看富豪榜</button>
-    </div>
-
-    <div id="screenLeaderboard" class="rpg-screen hidden">
-        <h1>🏆 少年股神歷史富豪榜 🏆</h1>
-        <div style="color:#64748b; font-size:11px; margin-bottom:15px;">（數據已精準永久儲存於此瀏覽器中）</div>
-        
-        <table class="leaderboard-table">
-            <thead>
-                <tr>
-                    <th>排名</th>
-                    <th>股神稱號</th>
-                    <th>流派</th>
-                    <th>最高身價</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboardBody"></tbody>
-        </table>
-        
-        <div style="margin-top: 35px;">
-            <button class="btn-prime" onclick="safeEnterHub()">跟親戚借錢 (重返戰場)</button>
+            
+            <button id="btn-restart" class="btn btn-back">🔄 再全倉進場一次</button>
         </div>
     </div>
 
-    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const settleOverlay = document.getElementById('settle-overlay');
+        const playerNameInput = document.getElementById('player-name');
+        
+        // 調整畫布尺寸
+        function resizeCanvas() {
+            const container = document.getElementById('game-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-<script>
-let canvas, ctx, player, gameState = 'INTRO';
-let bullets = [], enemies = [], particles = [], stars = [], dmgs = [], playerTrails = [];
-let boss = null, lastSpawn = 0, lastShot = 0, screenShake = 0, flashBg = 0, metaTriggered = false;
-let historyLog = []; const MAX_HISTORY = 180; let isRewinding = false; let rewindCooldown = 0;
+        // 遊戲狀態與變數
+        let gameActive = false;
+        let selectedHero = 'allin';
+        let money = 100000; // 開局身價
+        let maxMoney = 100000;
+        let wave = 1;
+        let skillCooldown = 0;
+        
+        let player = { x: 0, y: 0, size: 20, speed: 5 };
+        let bullets = [];
+        let enemies = [];
+        let particles = [];
+        let enemySpawnTimer = 0;
+        let keys = {};
+        
+        // 彈幕文字池
+        const texts = ["慘戶是我", "一張不賣", "悲情融資", "救救我", "全倉進場", "違約交割", "睡公園", "攤平再攤平", "韭菜之光", "綠光罩頂"];
 
-const HIT_TEXTS = ["不要割我!", "睡公園啦!", "救命維持率!", "融資斷頭!", "慘戶是我", "一張不賣!", "奇蹟自來", "韭菜之怒!!"];
-const CRIT_TEXTS = ["內線消息!", "拉高出貨!", "財富自由!", "違約交割!", "連拉三根!"];
-const ALL_TALENTS = [
-    { id: 'split', icon: '🧬', title: '當沖除權息分裂彈', desc: '子彈擊中敵機時，有 50% 機率朝兩側爆發分裂橫向雷射。' },
-    { id: 'lifesteal', icon: '🩸', title: '國安基金悄悄護盤', desc: '擊殺任何外資敵機，有 20% 機率直接修復 5% 崩潰維持率。' },
-    { id: 'mine', icon: '💥', title: '違約交割量子地雷', desc: '每次發動時空倒帶時，在過去所有移動軌跡上觸發大型光暈殉爆。' },
-    { id: 'crit', icon: '🎯', title: '內線交易情報增幅', desc: '獲得額外 30% 暴擊率，暴擊時傷害翻倍並引發瘋狂螢幕震動。' }
-];
+        // 🚀 核心修復：統一觸控與點擊邏輯，防止選單卡死
+        function handleHeroSelection(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const card = e.currentTarget;
+            selectedHero = card.getAttribute('data-hero');
+            
+            // 完美初始化並開始遊戲
+            initGame();
+        }
 
-window.onload = function() {
-    initEngine();
-};
-
-function initEngine() {
-    canvas = document.getElementById('gameCanvas');
-    ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; 
-    canvas.height = window.innerHeight;
-    
-    window.addEventListener('resize', () => { 
-        if(canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    });
-
-    player = {
-        points: 0, floor: 1, killCount: 0, currentScore: 0,
-        hp: 100, maxHp: 100, dmgMultiplier: 1.0, fireSpeedBonus: 0,
-        x: window.innerWidth/2-25, y: window.innerHeight-150, w: 50, h: 45, targetX: window.innerWidth/2-25,
-        droneRot: 0, 
-        chipLevels: { OVERCLOCK: 0, HYPERDRIVE: 0, DRONE: 0 },
-        perks: { split: false, lifesteal: false, mine: false, crit: false },
-        heroId: 'leon', heroColor: '#39ff14', heroBulletColor: '#39ff14'
-    };
-
-    stars = [];
-    for(let i=0; i<50; i++) {
-        stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2+0.8, c: Math.random() > 0.5 ? '#00ffff' : '#1e293b'});
-    }
-
-    // 手動拖曳滑順度大幅優化
-    window.addEventListener('touchmove', (e) => { 
-        if(gameState === 'COMBAT' && !isRewinding && e.touches.length > 0) player.targetX = e.touches[0].clientX - 25; 
-    }, { passive: true });
-    window.addEventListener('pointermove', (e) => { 
-        if(gameState === 'COMBAT' && !isRewinding) player.targetX = e.clientX - 25; 
-    });
-
-    let lastTap = 0; 
-    window.addEventListener('pointerup', () => {
-        let now = Date.now(); 
-        if (now - lastTap < 280) { 
-            if(gameState === 'COMBAT' && !isRewinding && rewindCooldown === 0 && historyLog.length > 20) isRewinding = true; 
-        } 
-        lastTap = now;
-    });
-
-    requestAnimationFrame(loop);
-}
-
-function safeSelectHero(id, color, bulletColor) {
-    if(!player) return;
-    player.heroId = id; player.heroColor = color; player.heroBulletColor = bulletColor;
-    player.perks.crit = (id === 'leon');
-    player.fireSpeedBonus = (id === 'chloe') ? 90 : 0;
-    player.chipLevels.DRONE = (id === 'sigma') ? 1 : 0;
-    safeEnterHub();
-}
-
-function safeEnterHub() {
-    gameState = 'HUB'; boss = null; isRewinding = false; metaTriggered = false;
-    document.getElementById('metaAlert').style.display = 'none';
-    document.getElementById('rewindIndicator').style.display = 'none';
-    
-    document.querySelectorAll('.rpg-screen').forEach(s => s.classList.add('hidden'));
-    document.getElementById('combatHud').classList.add('hidden');
-    document.getElementById('screenHub').classList.remove('hidden');
-    document.getElementById('hubPoints').innerText = player.points;
-    
-    const chipTypes = ['OVERCLOCK', 'HYPERDRIVE', 'DRONE'];
-    const baseCosts = { OVERCLOCK: 12, HYPERDRIVE: 4, DRONE: 5 };
-    chipTypes.forEach(type => {
-        let lvl = player.chipLevels[type];
-        let nextCost = Math.floor(baseCosts[type] * Math.pow(1.8, lvl));
-        document.getElementById(`lvl${type}`).innerText = `Lv.${lvl}`;
-        document.getElementById(`cost${type}`).innerText = nextCost;
-        document.getElementById(`btn${type}`).disabled = player.points < nextCost;
-    });
-}
-
-function safeBuyChip(type, baseCost) {
-    let lvl = player.chipLevels[type]; 
-    let currentCost = Math.floor(baseCost * Math.pow(1.8, lvl));
-    if(player.points >= currentCost) {
-        player.points -= currentCost; player.chipLevels[type] = lvl + 1;
-        player.dmgMultiplier = 1.0 + player.chipLevels.OVERCLOCK * 1.20;
-        let baseSpeed = (player.heroId === 'chloe') ? 90 : 0;
-        player.fireSpeedBonus = baseSpeed + player.chipLevels.HYPERDRIVE * 60;
-        let baseHp = (player.heroId === 'sigma') ? 130 : 100;
-        player.maxHp = Math.max(50, baseHp - player.chipLevels.HYPERDRIVE * 3); 
-        safeEnterHub();
-    }
-}
-
-function safeStartCombat() {
-    gameState = 'COMBAT';
-    document.querySelectorAll('.rpg-screen').forEach(s => s.classList.add('hidden'));
-    document.getElementById('combatHud').classList.remove('hidden');
-    document.getElementById('rewindIndicator').style.display = 'block';
-    
-    let baseHp = (player.heroId === 'sigma') ? 130 : 100;
-    player.maxHp = Math.max(50, baseHp - player.chipLevels.HYPERDRIVE * 3);
-    player.hp = player.maxHp;
-    player.killCount = 0; boss = null; historyLog = []; playerTrails = [];
-    bullets = []; enemies = []; particles = []; dmgs = []; rewindCooldown = 0;
-    lastSpawn = Date.now(); lastShot = Date.now();
-    updateHUD();
-}
-
-function updateHUD() {
-    document.getElementById('hudFloor').innerText = player.floor < 10 ? `0${player.floor}` : player.floor;
-    document.getElementById('hudScore').innerText = player.currentScore;
-    document.getElementById('hudHp').innerText = Math.max(0, Math.floor((player.hp / player.maxHp) * 100));
-    
-    let perksDiv = document.getElementById('hudPerks'); perksDiv.innerHTML = '';
-    if(player.perks.split) perksDiv.innerHTML += `<span class="perk-badge">🧬 分裂</span>`;
-    if(player.perks.lifesteal) perksDiv.innerHTML += `<span class="perk-badge">🩸 護盤</span>`;
-    if(player.perks.mine) perksDiv.innerHTML += `<span class="perk-badge">💥 地雷</span>`;
-    if(player.perks.crit) perksDiv.innerHTML += `<span class="perk-badge">🎯 內線</span>`;
-}
-
-function openTalentSelect() {
-    gameState = 'TALENT'; document.getElementById('combatHud').classList.add('hidden');
-    document.getElementById('rewindIndicator').style.display = 'none';
-    
-    let shuffled = [...ALL_TALENTS].sort(() => 0.5 - Math.random()).slice(0, 3);
-    let container = document.getElementById('talentOptions'); container.innerHTML = '';
-    
-    shuffled.forEach((t) => {
-        let card = document.createElement('div'); card.className = 'talent-card';
-        card.setAttribute('onclick', `safeSelectTalent('${t.id}')`);
-        card.innerHTML = `<div style="font-weight:bold;color:#ff007f;font-size:14px;margin-bottom:4px;">${t.icon} ${t.title}</div><div style="font-size:12px;color:#94a3b8;">${t.desc}</div>`;
-        container.appendChild(card);
-    });
-    document.getElementById('screenTalent').classList.remove('hidden');
-}
-
-function safeSelectTalent(id) {
-    player.perks[id] = true; document.getElementById('screenTalent').classList.add('hidden');
-    player.floor += 1; player.points += (20 + player.floor * 5);
-    player.currentScore += 1500;
-    safeStartCombat();        
-}
-
-function triggerHit(x, y, text, color, shake = 6) {
-    screenShake = shake; 
-    if(dmgs.length < 25) {
-        dmgs.push({x: x - 20, y: y - 15, text: text, life: 35, color: color, size: text.includes('!') ? 18 : 13});
-    }
-}
-
-function spawnExplosionParticles(x, y, color, count = 15, speedScope = 7) {
-    for(let i=0; i<count; i++) {
-        let angle = Math.random() * Math.PI * 2; 
-        let speed = (Math.random() * 0.6 + 0.4) * speedScope;
-        particles.push({
-            x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-            life: Math.random() * 25 + 10, color: color, size: Math.random() * 4 + 1.5
+        const cards = document.querySelectorAll('.hero-card');
+        cards.forEach(card => {
+            card.addEventListener('touchstart', handleHeroSelection, { passive: false });
+            card.addEventListener('click', handleHeroSelection);
         });
-    }
-}
 
-// 結算與富豪榜永久存檔寫入功能
-function safeSaveLeaderboard() {
-    let nameInput = document.getElementById('playerNameInput').value.trim();
-    if(!nameInput) nameInput = "無名韭菜";
-    
-    let heroNames = { leon: "歐印流 Leon", chloe: "當沖女王 Chloe", sigma: "量化巨鯨 AI" };
-    let currentHeroName = heroNames[player.heroId] || "散戶戰機";
-    
-    let localData = localStorage.getItem('cyber_taiwan_rich_list_v2');
-    let list = localData ? JSON.parse(localData) : [];
-    
-    list.push({ name: nameInput, hero: currentHeroName, score: player.currentScore });
-    list.sort((a, b) => b.score - a.score);
-    list = list.slice(0, 5); // 只取前五名
-    
-    localStorage.setItem('cyber_taiwan_rich_list_v2', JSON.stringify(list));
-    
-    let tbody = document.getElementById('leaderboardBody'); tbody.innerHTML = "";
-    let medals = ["🥇", "🥈", "🥉", "4", "5"];
-    list.forEach((item, idx) => {
-        let row = document.createElement('tr');
-        row.innerHTML = `<td>${medals[idx]}</td><td style="color:#39ff14;font-weight:bold;">${item.name}</td><td style="color:#00ffff;">${item.hero}</td><td style="color:#f59e0b;font-weight:bold;">$${item.score.toLocaleString()}</td>`;
-        tbody.appendChild(row);
-    });
-    
-    document.getElementById('screenGameOver').classList.add('hidden');
-    document.getElementById('screenLeaderboard').classList.remove('hidden');
-}
+        // 初始化遊戲數據
+        function initGame() {
+            money = selectedHero === 'allin' ? 200000 : (selectedHero === 'value' ? 80000 : 120000);
+            maxMoney = money;
+            wave = 1;
+            skillCooldown = 0;
+            bullets = [];
+            enemies = [];
+            particles = [];
+            enemySpawnTimer = 0;
+            
+            player.x = canvas.width / 2;
+            player.y = canvas.height * 0.8;
+            
+            // 隱藏選單，啟動遊戲引擎
+            menuOverlay.classList.add('hidden');
+            settleOverlay.classList.add('hidden');
+            gameActive = true;
+            
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
 
-function updateEngine() {
-    if(gameState !== 'COMBAT' || !player) return;
-    if(rewindCooldown > 0) rewindCooldown--;
+        // 觸控與滑動控制主角移動
+        let touchStartX = 0;
+        let touchStartY = 0;
+        canvas.addEventListener('touchstart', (e) => {
+            if(!gameActive) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
 
-    // 倒帶機制運作
-    if (isRewinding) {
-        if (historyLog.length > 0) {
-            let prevFrame = historyLog.pop();
-            player.x = prevFrame.playerX; player.targetX = prevFrame.playerX; player.hp = prevFrame.playerHp;
-            bullets.forEach(b => { b.y += b.isEnemy ? -5 : 9; });
-            enemies.forEach(e => { e.y -= 2.5; });
-            return; 
-        } else {
-            isRewinding = false; rewindCooldown = 180; flashBg = 12;
-            if(player.perks.mine) {
-                enemies.forEach(e => {
-                    if(e.y > 0) {
-                        e.hp -= 200; spawnExplosionParticles(e.x, e.y, '#f59e0b', 15, 8);
-                    }
+        canvas.addEventListener('touchmove', (e) => {
+            if(!gameActive) return;
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            
+            const dx = touchX - touchStartX;
+            const dy = touchY - touchStartY;
+            
+            player.x += dx * 0.8;
+            player.y += dy * 0.8;
+            
+            // 限制邊界
+            if (player.x < player.size) player.x = player.size;
+            if (player.x > canvas.width - player.size) player.x = canvas.width - player.size;
+            if (player.y < canvas.height * 0.4) player.y = canvas.height * 0.4;
+            if (player.y > canvas.height - player.size) player.y = canvas.height - player.size;
+            
+            touchStartX = touchX;
+            touchStartY = touchY;
+        }, { passive: false });
+
+        // 雙擊釋放技能
+        let lastTap = 0;
+        canvas.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                triggerSkill();
+            }
+            lastTap = currentTime;
+        });
+
+        function triggerSkill() {
+            if (skillCooldown > 0) return;
+            skillCooldown = selectedHero === 'daytrade' ? 8 : (selectedHero === 'allin' ? 12 : 15);
+            
+            // 釋放全螢幕彈幕清場
+            for(let i=0; i<36; i++) {
+                let angle = (i * 10) * Math.PI / 180;
+                bullets.push({
+                    x: player.x, y: player.y,
+                    vx: Math.cos(angle) * 7, vy: Math.sin(angle) * 7,
+                    size: 6, color: '#00ffff', text: '⚡週轉金護體⚡'
                 });
             }
-            updateHUD(); return;
         }
-    }
 
-    let now = Date.now(); 
-    if(Math.abs(screenShake) > 0.1) screenShake *= -0.85; else screenShake = 0;
-    if(flashBg > 0) flashBg -= 1;
-    
-    // 手感滑順度優化插值 (0.35)
-    player.x += (player.targetX - player.x) * 0.35;
-    player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
-    player.droneRot += 0.08;
+        // 遊戲主迴圈
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            if (!gameActive) return;
+            
+            let dt = (timestamp - lastTime) / 1000;
+            if(dt > 0.1) dt = 0.1; // 防止背景喚醒大暴衝
+            lastTime = timestamp;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 技能冷卻倒數
+            if (skillCooldown > 0) {
+                skillCooldown -= dt;
+                if (skillCooldown < 0) skillCooldown = 0;
+            }
+            
+            // 自動射擊
+            enemySpawnTimer += dt;
+            if (bullets.length < 50 && Math.random() < 0.15) {
+                bullets.push({
+                    x: player.x, y: player.y - player.size,
+                    vx: 0, vy: -8, size: 4, color: '#39ff14'
+                });
+            }
+            
+            // 生產慘戶敵軍
+            let spawnRate = Math.max(0.3, 1.5 - wave * 0.1);
+            if (enemySpawnTimer > spawnRate) {
+                enemySpawnTimer = 0;
+                enemies.push({
+                    x: Math.random() * (canvas.width - 40) + 20, y: -20,
+                    vy: Math.random() * 2 + 1 + wave * 0.2,
+                    size: 15,
+                    text: texts[Math.floor(Math.random() * texts.length)]
+                });
+            }
+            
+            // 更新並繪製子彈
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.x += b.vx; b.y += b.vy;
+                
+                ctx.fillStyle = b.color;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.size, 0, Math.PI*2);
+                ctx.fill();
+                
+                if (b.text) {
+                    ctx.fillStyle = '#00ffff';
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(b.text, b.x - 20, b.y - 8);
+                }
+                
+                if (b.y < -50 || b.y > canvas.height + 50 || b.x < -50 || b.x > canvas.width + 50) {
+                    bullets.splice(i, 1);
+                }
+            }
+            
+            // 更新並繪製敵軍
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                e.y += e.vy;
+                
+                ctx.fillStyle = 'rgba(255, 71, 87, 0.2)';
+                ctx.strokeStyle = '#ff4757';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.size, 0, Math.PI*2);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = '#ff6b81';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(e.text, e.x, e.y + 4);
+                
+                // 子彈與敵軍碰撞檢測
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    let b = bullets[j];
+                    let dist = Math.hypot(b.x - e.x, b.y - e.y);
+                    if (dist < e.size + b.size) {
+                        enemies.splice(i, 1);
+                        bullets.splice(j, 1);
+                        money += 5000 * wave;
+                        if(money > maxMoney) maxMoney = money;
+                        break;
+                    }
+                }
+                
+                // 敵軍穿越底線或撞擊玩家
+                if (gameActive && e.y > canvas.height + 20) {
+                    enemies.splice(i, 1);
+                    money -= 35000; // 斷頭打擊
+                    if (money <= 0) gameOver();
+                } else if (gameActive && Math.hypot(player.x - e.x, player.y - e.y) < player.size + e.size) {
+                    enemies.splice(i, 1);
+                    money -= 50000;
+                    if (money <= 0) gameOver();
+                }
+            }
+            
+            // 繪製玩家主角
+            ctx.fillStyle = selectedHero === 'allin' ? '#ff4757' : (selectedHero === 'daytrade' ? '#ffa502' : '#00ffff');
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // 重設發光
+            
+            // 繪製頂部狀態列
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`當前身價: $${money.toLocaleString()}`, 15, 30);
+            
+            ctx.textAlign = 'right';
+            ctx.font = '13px sans-serif';
+            ctx.fillText(`雙擊釋放特技 (CD: ${Math.ceil(skillCooldown)}s)`, canvas.width - 15, 30);
+            
+            // 波段自動升級
+            if (Math.random() < 0.001) wave++;
 
-    // 紀錄軌跡殘影
-    if(now % 3 === 0) {
-        playerTrails.push({x: player.x, y: player.y,
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 遊戲結束結算
+        function gameOver() {
+            gameActive = false;
+            money = 0;
+            
+            document.getElementById('settle-score').innerText = `$${maxMoney.toLocaleString()}`;
+            settleOverlay.classList.remove('hidden');
+            showRankings();
+        }
+
+        // 🏆 排行榜富豪榜資料引擎 (localStorage)
+        function showRankings() {
+            let ranks = JSON.parse(localStorage.getItem('cyber_stock_ranks')) || [
+                { name: "少年股神始祖", score: 500000 },
+                { name: "信義區割草機", score: 300000 },
+                { name: "慘戶一號", score: 100000 }
+            ];
+            
+            const box = document.getElementById('rank-items-box');
+            box.innerHTML = '';
+            
+            ranks.sort((a,b) => b.score - a.score).slice(0, 5).forEach((item, index) => {
+                box.innerHTML += `
+                    <div class="rank-item">
+                        <span style="color:${index===0?'#39ff14':'#fff'}">第 ${index+1} 名: ${item.name}</span>
+                        <span style="color:#ff4757; font-weight:bold;">$${item.score.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // 儲存名字點擊事件
+        function saveRankHandler(e) {
+            e.preventDefault();
+            let name = playerNameInput.value.trim() || "無名韭菜";
+            let ranks = JSON.parse(localStorage.getItem('cyber_stock_ranks')) || [];
+            
+            ranks.push({ name: name, score: maxMoney });
+            ranks.sort((a,b) => b.score - a.score);
+            localStorage.setItem('cyber_stock_ranks', JSON.stringify(ranks));
+            
+            showRankings();
+            alert("歷史紀錄寫入成功！富豪榜已更新。");
+            document.getElementById('btn-save').disabled = true;
+        }
+
+        document.getElementById('btn-save').addEventListener('click', saveRankHandler);
+
+        // 重新開始
+        function restartHandler(e) {
+            e.preventDefault();
+            document.getElementById('btn-save').disabled = false;
+            playerNameInput.value = '';
+            settleOverlay.classList.add('hidden');
+            menuOverlay.classList.remove('hidden');
+        }
+        document.getElementById('btn-restart').addEventListener('click', restartHandler);
+    </script>
+</body>
+</html>
