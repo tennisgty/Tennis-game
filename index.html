@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -8,7 +7,7 @@
     <style>
         body { 
             margin: 0; padding: 0; background-color: #121212; color: white; 
-            font-family: 'Helvetica Neue', sans-serif; overflow: hidden; 
+            font-family: 'Helvetica Neue', 'PingFang TC', sans-serif; overflow: hidden; 
             display: flex; flex-direction: column; align-items: center; 
             justify-content: center; height: 100vh; touch-action: manipulation; 
         }
@@ -26,7 +25,7 @@
         .highlight-time { font-size: 18px; color: #2ed573; }
         
         #game-area { 
-            position: relative; width: 90%; max-width: 400px; height: 50vh; 
+            position: relative; width: 90%; max-width: 400px; height: 45vh; 
             background: linear-gradient(180deg, #1e3799 0%, #0a3d62 100%);
             border: 2px solid #576574; border-radius: 10px; overflow: hidden; 
             cursor: pointer;
@@ -46,7 +45,7 @@
             border-top: 2px solid #2ed573; border-bottom: 2px solid #2ed573; z-index: 2;
         }
         #btn-swing { 
-            margin-top: 15px; padding: 16px 0; font-size: 22px; font-weight: bold; 
+            margin-top: 10px; padding: 14px 0; font-size: 20px; font-weight: bold; 
             background: #ff4757; color: white; border: none; border-radius: 30px; 
             cursor: pointer; box-shadow: 0 5px #c0392b; width: 90%; max-width: 400px;
             text-align: center;
@@ -105,6 +104,25 @@
     </div>
     
     <button id="btn-swing" class="hidden">點擊開始訓練</button>
+
+    <div style="width: 90%; max-width: 400px; text-align: center; margin-top: 15px; z-index: 9999; position: relative;">
+        <a href="stock.html" style="
+            display: block;
+            padding: 12px 15px;
+            background: linear-gradient(90deg, #39ff14, #00ffff);
+            color: #000;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            font-weight: 900;
+            font-size: 15px;
+            text-decoration: none;
+            border-radius: 25px;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.7);
+            letter-spacing: 1px;
+            transition: transform 0.1s ease;
+        " ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
+            🚀 點此切換：少年股神 · 全倉進場2026
+        </a>
+    </div>
 
     <script>
         const ball = document.getElementById('ball');
@@ -234,35 +252,28 @@
             }
         }
 
-        // 優化後的對稱式擊球檢測演算法 (Perfect / Good / Early / Late 四重判定)
         function checkHit() {
             const gameAreaHeight = gameArea.offsetHeight;
             const sweetSpotBottom = gameAreaHeight - (gameAreaHeight * 0.12);
             const sweetSpotTop = sweetSpotBottom - 50;
             
             const ballTop = ballY;
-            const ballBottom = ballY + 24; // 球的直徑為 24px
+            const ballBottom = ballY + 24; 
             const ballCenterY = ballY + 12;
 
-            // 1. 揮拍太早：球的下邊緣完全尚未進入綠色擊球區
             if (ballBottom < sweetSpotTop) {
                 pointEnd('opp', "揮拍太早 (Early)", "球還沒進到擊球區你就出拍了！");
             } 
-            // 2. 揮拍太慢：球的上邊緣已經完全脫離綠色擊球區
             else if (ballTop > sweetSpotBottom) {
                 pointEnd('opp', "揮拍太慢 (Late)", "球已經越過身體了！");
             } 
-            // 3. 成功觸球：球體與綠色區有重疊
             else {
-                // 甜區判定 (Perfect)：球的中心點完美落在綠色帶中央
                 if (ballCenterY >= sweetSpotTop && ballCenterY <= sweetSpotBottom) {
                     pointEnd('me', "完美回擊 (Perfect)", `正中球拍甜區！成功接下時速 ${currentSpeedKmh} km/h 的重砲！`);
                 } 
-                // 偏前觸球 (Good)：球的下半部壓在綠色區，中心點還在上方 (擊球點偏前)
                 else if (ballCenterY < sweetSpotTop) {
                     pointEnd('me', "安全回擊 (Good - 擊球偏早)", `擊球點稍前，但成功將時速 ${currentSpeedKmh} km/h 的發球推回場內！`);
                 } 
-                // 偏後觸球 (Good)：球的上半部壓在綠色區，中心點已經偏下 (擊球點偏後)
                 else {
                     pointEnd('me', "安全回擊 (Good - 擊球偏晚)", `擊球點稍晚，勉強將時速 ${currentSpeedKmh} km/h 的發球擋回去！`);
                 }
@@ -352,27 +363,6 @@
         
         gameArea.addEventListener('touchstart', swingHandler, { passive: false });
         gameArea.addEventListener('mousedown', swingHandler);
-
     </script>
-
-            <div style="width: 100%; max-width: 400px; text-align: center; margin: 10px auto; padding: 0 10px; z-index: 9999; position: relative;">
-        <a href="stock.html" style="
-            display: block;
-            padding: 10px 15px;
-            background: linear-gradient(90deg, #39ff14, #00ffff);
-            color: #000;
-            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            font-weight: 900;
-            font-size: 14px;
-            text-decoration: none;
-            border-radius: 25px;
-            box-shadow: 0 0 12px rgba(57, 255, 20, 0.6);
-            letter-spacing: 1px;
-            transition: transform 0.1s ease;
-        " ontouchstart="this.style.transform='scale(0.97)'" ontouchend="this.style.transform='scale(1)'">
-            🚀 點此切換：少年股神 · 全倉進場2026
-        </a>
-    </div>
-    
-    </body>
+</body>
 </html>
