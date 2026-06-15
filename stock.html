@@ -3,132 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>少年股神：全倉進場 2026</title>
+    <title>CYBER TAIWAN 2026：少年股神完全體</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
         body {
-            margin: 0; padding: 0; background-color: #0d0e15; color: #fff;
+            margin: 0; padding: 0; background-color: #0b0c10; color: #fff;
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            overflow: hidden; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; height: 100vh;
+            overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh;
         }
         #game-container {
-            position: relative; width: 100%; max-width: 420px; height: 100vh;
-            background: #0d0e15; display: flex; flex-direction: column; overflow: hidden;
+            position: relative; width: 100%; max-width: 450px; height: 100vh;
+            background: #0b0c10; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
-        canvas { background: #131520; display: block; width: 100%; height: 100%; }
+        canvas { display: block; width: 100%; height: 100%; }
         
-        /* 介面遮罩 */
+        /* 頂部霓虹 HUD */
+        #hud-panel {
+            position: absolute; top: 15px; left: 0; width: 100%; display: flex;
+            justify-content: space-around; padding: 0 10px; z-index: 10; pointer-events: none;
+        }
+        .hud-box {
+            background: rgba(20, 24, 38, 0.9); border: 1px solid #1f2438;
+            border-radius: 8px; padding: 6px 12px; text-align: center; min-width: 85px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .hud-label { font-size: 11px; color: #8f9cae; margin-bottom: 2px; font-weight: bold; }
+        .hud-val { font-size: 15px; font-weight: 900; }
+        
+        #skill-toast {
+            position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 165, 0, 0.15); border: 1px solid #ffa500;
+            color: #ffa500; padding: 8px 16px; border-radius: 20px; font-size: 12px;
+            font-weight: bold; text-shadow: 0 0 5px #ffa500; z-index: 10;
+            animation: pulse 1.5s infinite; pointer-events: none; text-align: center; width: 85%;
+        }
+
+        /* 遮罩通用樣式 */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(13, 14, 21, 0.95); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100; padding: 20px;
-            text-align: center;
+            background: rgba(10, 11, 16, 0.98); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100; padding: 25px; box-sizing: border-box;
         }
         .hidden { display: none !important; }
         
-        .title { font-size: 28px; font-weight: 900; color: #39ff14; text-shadow: 0 0 10px #39ff14; margin-bottom: 5px; }
-        .subtitle { font-size: 14px; color: #888; margin-bottom: 25px; }
+        .title-cyber { font-size: 32px; font-weight: 900; color: #39ff14; text-shadow: 0 0 15px #39ff14; letter-spacing: 2px; margin-bottom: 5px; }
+        .subtitle { font-size: 13px; color: #ff007f; font-weight: bold; letter-spacing: 3px; margin-bottom: 30px; }
         
-        /* 角色選擇卡片 */
-        .hero-select-container { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        /* 流派與卡片設計 */
+        .hero-list { width: 100%; display: flex; flex-direction: column; gap: 16px; max-width: 380px; }
         .hero-card {
-            background: #1a1d2e; border: 2px solid #2f3456; border-radius: 12px;
-            padding: 15px; display: flex; align-items: center; cursor: pointer;
-            transition: all 0.2s ease; position: relative;
+            background: #121420; border: 2px solid #22263f; border-radius: 14px;
+            padding: 16px; cursor: pointer; transition: all 0.2s ease; text-align: left; position: relative;
         }
-        .hero-card:active { transform: scale(0.98); background: #22273f; }
-        .hero-avatar { font-size: 32px; margin-right: 15px; }
-        .hero-info { text-align: left; flex: 1; }
-        .hero-name { font-size: 18px; font-weight: bold; color: #fff; }
-        .hero-desc { font-size: 12px; color: #aaa; margin-top: 3px; }
-        .hero-ability { font-size: 11px; color: #00ffff; margin-top: 5px; font-weight: bold; }
+        .hero-card:active { transform: scale(0.97); }
+        .badge { position: absolute; top: 12px; right: 12px; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
         
-        /* 顏色樣式 */
-        .card-all-in { border-color: #ff4757; }
-        .card-all-in .hero-name { color: #ff4757; }
-        .card-day { border-color: #ffa502; }
-        .card-day .hero-name { color: #ffa502; }
-        .card-value { border-color: #2ed573; border-color: #00ffff; }
-        .card-value .hero-name { color: #00ffff; }
+        .card-leon { border-color: #39ff14; box-shadow: inset 0 0 10px rgba(57,255,20,0.1); }
+        .card-leon .badge { background: #39ff14; color: #000; }
+        .card-chloe { border-color: #ff007f; box-shadow: inset 0 0 10px rgba(255,0,127,0.1); }
+        .card-chloe .badge { background: #ff007f; color: #fff; }
+        .card-sigma { border-color: #00ffff; box-shadow: inset 0 0 10px rgba(0,255,255,0.1); }
+        .card-sigma .badge { background: #00ffff; color: #000; }
 
-        /* 結算畫面設計 */
-        .settle-score { font-size: 32px; font-weight: 900; color: #ff4757; margin: 15px 0; }
-        .input-name {
-            width: 80%; padding: 12px; background: #1a1d2e; border: 2px solid #39ff14;
-            color: #fff; font-size: 16px; border-radius: 8px; text-align: center; margin-bottom: 15px;
-            outline: none;
-        }
-        .btn {
-            width: 80%; padding: 14px; font-size: 16px; font-weight: bold; border: none;
-            border-radius: 25px; cursor: pointer; margin-top: 10px; color: #000;
-            background: linear-gradient(90deg, #39ff14, #00ffff); box-shadow: 0 0 10px rgba(57,255,20,0.5);
-        }
-        .btn-back {
-            background: #222; color: #aaa; box-shadow: none; border: 1px solid #444; margin-top: 15px;
-        }
+        .hero-header { font-size: 18px; font-weight: bold; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .hero-desc { font-size: 12px; color: #a0a5c0; line-height: 1.5; }
         
-        /* 排行榜 */
-        .rank-list { width: 90%; background: #141622; border: 1px solid #222; border-radius: 8px; padding: 10px; margin-top: 15px; text-align: left; }
-        .rank-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #222; font-size: 13px; }
-        .rank-item:last-child { border-bottom: none; }
+        /* 💥 Roguelike 三選一增幅介面 💥 */
+        .rogue-title { font-size: 24px; font-weight: 900; color: #ffa500; text-shadow: 0 0 10px #ffa500; margin-bottom: 5px; }
+        .rogue-container { width: 100%; display: flex; flex-direction: column; gap: 12px; max-width: 380px; margin-top: 20px; }
+        .rogue-card {
+            background: #16192b; border: 2px solid #343a56; border-radius: 12px; padding: 15px;
+            cursor: pointer; text-align: left; transition: all 0.2s;
+        }
+        .rogue-card:active { transform: scale(0.97); background: #1e233d; }
+        .rogue-card-title { font-size: 16px; font-weight: bold; color: #00ffff; margin-bottom: 4px; }
+        .rogue-card-desc { font-size: 12px; color: #cbd5e1; line-height: 1.4; }
+
+        /* 結算畫面 */
+        .settle-title { font-size: 34px; font-weight: 900; color: #ff3333; text-shadow: 0 0 15px #ff3333; margin-bottom: 10px; }
+        .settle-money { font-size: 36px; font-weight: 900; color: #ffcd00; text-shadow: 0 0 10px rgba(255,205,0,0.5); margin: 20px 0; }
+        .input-cyber {
+            width: 85%; max-width: 320px; padding: 14px; background: #16192b; border: 2px solid #ff007f;
+            color: #fff; font-size: 16px; border-radius: 10px; text-align: center; margin-bottom: 20px;
+            outline: none; box-shadow: 0 0 10px rgba(255,0,127,0.2); font-weight: bold;
+        }
+        .btn-cyber {
+            width: 85%; max-width: 320px; padding: 15px; font-size: 16px; font-weight: 900;
+            border: none; border-radius: 30px; cursor: pointer; transition: all 0.2s;
+            background: linear-gradient(90deg, #39ff14, #00ffff); color: #000;
+            box-shadow: 0 0 15px rgba(57,255,20,0.4); text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-cyber:active { transform: scale(0.96); }
+        .btn-link { background: #222538; color: #9aa0b9; box-shadow: none; border: 1px solid #343a56; margin-top: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+
+        .leaderboard { width: 85%; max-width: 320px; background: #111322; border: 1px solid #22263f; border-radius: 10px; padding: 12px; margin-top: 20px; }
+        .leader-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #222640; font-size: 13px; }
+        .leader-item:last-child { border-bottom: none; }
+
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
     </style>
 </head>
 <body>
 
     <div id="game-container">
+        <div id="hud-panel">
+            <div class="hud-box" style="border-color:#ffa500;"><div class="hud-label">波段進程</div><div id="hud-wave" class="hud-val" style="color:#ffa500;">01</div></div>
+            <div class="hud-box" style="border-color:#39ff14;"><div class="hud-label">當前身價</div><div id="hud-money" class="hud-val" style="color:#39ff14;">$150,000</div></div>
+            <div class="hud-box" style="border-color:#ff007f;"><div class="hud-label">維持率</div><div id="hud-ratio" class="hud-val" style="color:#ff007f;">120%</div></div>
+        </div>
+
+        <div id="skill-toast">⚡ 雙擊螢幕：發動「不當賠·違約交割時空術」 ⚡</div>
+
         <canvas id="gameCanvas"></canvas>
 
         <div id="menu-overlay" class="overlay">
-            <div class="title">少年股神</div>
-            <div class="subtitle">全倉進場 · 賽博斷頭割草大戰 2026</div>
+            <div class="title-cyber">CYBER TAIWAN 2026</div>
+            <div class="subtitle">// 選擇你的台股少年股神流派 //</div>
             
-            <div class="hero-select-container">
-                <div class="hero-card card-all-in" data-hero="allin">
-                    <div class="hero-avatar">🔥</div>
-                    <div class="hero-info">
-                        <div class="hero-name">新莊少年股神（歐印流）</div>
-                        <div class="hero-desc">開局自帶融資開滿氣勢。一張不賣，奇蹟自來！</div>
-                        <div class="hero-ability">✨ 特殊技：不當賠·違約交割時空術（冷卻: 12秒）</div>
-                    </div>
+            <div class="hero-list">
+                <div class="hero-card card-leon" data-hero="leon">
+                    <div class="badge">高爆雷射</div>
+                    <div class="hero-header" style="color:#39ff14;">👨‍💻 歐印流核心 · Leon</div>
+                    <div class="hero-desc">自帶超高內線暴擊率！手持「巨量通膨爆破雷射」，擊中散戶觸發巨型金錢噴發。</div>
                 </div>
                 
-                <div class="hero-card card-day" data-hero="daytrade">
-                    <div class="hero-avatar">⚡</div>
-                    <div class="hero-info">
-                        <div class="hero-name">竹科工程師（當沖女王）</div>
-                        <div class="hero-desc">絕不留倉過夜！極致的手速與爆發力。</div>
-                        <div class="hero-ability">✨ 特殊技：萬能週轉金彈幕（冷卻: 8秒）</div>
-                    </div>
+                <div class="hero-card card-chloe" data-hero="chloe">
+                    <div class="badge">散彈追蹤</div>
+                    <div class="hero-header" style="color:#ff007f;">💁‍♀️ 當沖女王 · Chloe</div>
+                    <div class="hero-desc">初始射速狂飆 60%。火網觸發「V字雙重擴散追蹤彈」，自動咬死大範圍散戶。</div>
                 </div>
 
-                <div class="hero-card card-value" data-hero="value">
-                    <div class="hero-avatar">💎</div>
-                    <div class="hero-info">
-                        <div class="hero-name">公園冷靜大叔（價值投資）</div>
-                        <div class="hero-desc">手握大把高股息，防禦力驚人，越跌我越買。</div>
-                        <div class="hero-ability">✨ 特殊技：無痛填息護體盾（冷卻: 15秒）</div>
-                    </div>
+                <div class="hero-card card-sigma" data-hero="sigma">
+                    <div class="badge">雙浮游砲</div>
+                    <div class="hero-header" style="color:#00ffff;">🤖 量化交易 · AI巨鯨</div>
+                    <div class="hero-desc">開局自帶兩架高能「散戶清除浮游砲」，獨立於主角之外自主進行智能交叉鎖定。</div>
                 </div>
             </div>
             
-            <a href="index.html" class="btn btn-back" style="text-decoration:none; width:85%; max-width:350px;">🎾 返回重砲發球訓練場</a>
+            <a href="index.html" class="btn-cyber btn-link">🎾 返回重砲發球訓練場</a>
+        </div>
+
+        <div id="rogue-overlay" class="overlay hidden">
+            <div class="rogue-title">📈 融資部位再增資！</div>
+            <div style="font-size:12px; color:#8f9cae; text-align:center;">請選擇一個散戶迷因天賦來強化你的做多火網</div>
+            
+            <div class="rogue-container" id="rogue-cards-box">
+                </div>
         </div>
 
         <div id="settle-overlay" class="overlay hidden">
-            <div id="settle-title" class="title" style="color:#ff4757; text-shadow:0 0 10px #ff4757;">融資斷頭悲情清算</div>
-            <div class="subtitle">少年股神，你的身價已淪為壁紙...</div>
-            <div id="settle-score" class="settle-score">$0</div>
+            <div class="settle-title">💥 融資斷頭！悲情清算 💥</div>
+            <div style="font-size:13px; color:#aaa; max-width:280px; text-align:center; line-height:1.6;">你的操作心態已完全歸零（含淚準備睡公園）。</div>
             
-            <input type="text" id="player-name" class="input-name" placeholder="請留名以資警惕（如: 11沒袋子）" maxLength="10">
-            <button id="btn-save" class="btn">💥 紀錄並寫入歷史富豪榜</button>
+            <div id="settle-score" class="settle-money">$0</div>
             
-            <div class="rank-list">
-                <div style="font-weight:bold; color:#00ffff; margin-bottom:5px; font-size:14px; text-align:center;">🏆 歷史富豪（韭菜）榜</div>
-                <div id="rank-items-box"></div>
+            <input type="text" id="player-name" class="input-cyber" placeholder="請留名以資警惕（如: 新莊小韭菜）" maxLength="12">
+            <button id="btn-save" class="btn-cyber">寫入台股悲情富豪榜</button>
+            
+            <div class="leaderboard">
+                <div style="font-weight:bold; color:#ff007f; text-align:center; font-size:13px; margin-bottom:6px; letter-spacing:1px;">🏆 歷史富豪（韭菜）榜</div>
+                <div id="leader-box"></div>
             </div>
             
-            <button id="btn-restart" class="btn btn-back">🔄 再全倉進場一次</button>
+            <button id="btn-restart" class="btn-cyber btn-link" style="color:#fff; border-color:#39ff14;">🔄 再全倉歐印一次</button>
         </div>
     </div>
 
@@ -136,10 +173,15 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const menuOverlay = document.getElementById('menu-overlay');
+        const rogueOverlay = document.getElementById('rogue-overlay');
+        const rogueCardsBox = document.getElementById('rogue-cards-box');
         const settleOverlay = document.getElementById('settle-overlay');
         const playerNameInput = document.getElementById('player-name');
         
-        // 調整畫布尺寸
+        const hudWave = document.getElementById('hud-wave');
+        const hudMoney = document.getElementById('hud-money');
+        const hudRatio = document.getElementById('hud-ratio');
+
         function resizeCanvas() {
             const container = document.getElementById('game-container');
             canvas.width = container.clientWidth;
@@ -148,306 +190,516 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // 遊戲狀態與變數
+        // 核心引擎變數
         let gameActive = false;
-        let selectedHero = 'allin';
-        let money = 100000; // 開局身價
-        let maxMoney = 100000;
+        let isPausedForRogue = false; // 判定是否正卡在三選一升級中
+        let selectedHero = 'leon';
+        let money = 150000;
+        let maxMoney = 150000;
         let wave = 1;
-        let skillCooldown = 0;
+        let spawnTimer = 0;
+        let waveTimer = 0;
         
-        let player = { x: 0, y: 0, size: 20, speed: 5 };
+        // 物件池
+        let player = { x: 0, y: 0, speed: 6, heroColor: '#39ff14' };
         let bullets = [];
         let enemies = [];
         let particles = [];
-        let enemySpawnTimer = 0;
-        let keys = {};
-        
-        // 彈幕文字池
-        const texts = ["慘戶是我", "一張不賣", "悲情融資", "救救我", "全倉進場", "違約交割", "睡公園", "攤平再攤平", "韭菜之光", "綠光罩頂"];
+        let textMemes = [];
+        let boss = null; // 💥 大魔王物件
 
-        // 🚀 核心修復：統一觸控與點擊邏輯，防止選單卡死
-        function handleHeroSelection(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        // Roguelike 屬性增幅倍率
+        let attackSpeedBuff = 1.0; 
+        let bulletSizeBuff = 1.0;
+        let extraDroneCount = 0; // 浮游砲增加數量
+        let insuranceCount = 0;  // 寬限期（免死金牌）次數
+
+        // 技能冷卻
+        let skillCooldown = 0;
+
+        const enemyMemes = ["慘戶是我", "一張不賣", "悲情融資", "救救我", "全倉進場", "違約交割", "睡公園", "攤平再攤平", "韭菜之光", "綠光罩頂", "不要割我!"];
+        const hitMemes = ["暴賺!", "大戶倒貨", "塊陶啊", "利空出盡", "法會變法說", "軋空行情", "嘎到外太空"];
+
+        // 所有可用的 Roguelike 天賦池
+        const rogueTalents = [
+            { id: 'atk_speed', title: '⚡ 當沖極致手速', desc: '無限開火速率提升 25%！讓散戶完全沒有喘息空間。' },
+            { id: 'bullet_size', title: '🔥 融資部位再開滿', desc: '子彈體積與碰撞判定變大 40%！瘋狂洗版。' },
+            { id: 'add_drone', title: '🤖 召喚：散戶清除浮游砲', desc: '在機體身邊額外召喚一架高能雷射浮游砲自主開火！' },
+            { id: 'insurance', title: '💎 新青安五年寬限期', desc: '獲得 1 次免死金牌！當身價歸零時自動滿血原地復活。' },
+            { id: 'dividend', title: '💰 高股息左手配右手', desc: '擊殺敵人獲得的身價金錢永久提升 30%！' }
+        ];
+
+        function chooseHero(e) {
+            e.preventDefault(); e.stopPropagation();
+            selectedHero = e.currentTarget.getAttribute('data-hero');
             
-            const card = e.currentTarget;
-            selectedHero = card.getAttribute('data-hero');
-            
-            // 完美初始化並開始遊戲
-            initGame();
+            // 根據初始流派給予基礎特性
+            attackSpeedBuff = 1.0;
+            bulletSizeBuff = 1.0;
+            extraDroneCount = selectedHero === 'sigma' ? 2 : 0;
+            insuranceCount = 0;
+
+            startGame();
         }
 
         const cards = document.querySelectorAll('.hero-card');
         cards.forEach(card => {
-            card.addEventListener('touchstart', handleHeroSelection, { passive: false });
-            card.addEventListener('click', handleHeroSelection);
+            card.addEventListener('touchstart', chooseHero, { passive: false });
+            card.addEventListener('click', chooseHero);
         });
 
-        // 初始化遊戲數據
-        function initGame() {
-            money = selectedHero === 'allin' ? 200000 : (selectedHero === 'value' ? 80000 : 120000);
-            maxMoney = money;
-            wave = 1;
-            skillCooldown = 0;
-            bullets = [];
-            enemies = [];
-            particles = [];
-            enemySpawnTimer = 0;
+        function startGame() {
+            money = 150000; maxMoney = 150000;
+            wave = 1; waveTimer = 0; spawnTimer = 0; skillCooldown = 0;
+            bullets = []; enemies = []; particles = []; textMemes = [];
+            boss = null;
+            isPausedForRogue = false;
             
             player.x = canvas.width / 2;
             player.y = canvas.height * 0.8;
             
-            // 隱藏選單，啟動遊戲引擎
+            if(selectedHero === 'leon') player.heroColor = '#39ff14';
+            if(selectedHero === 'chloe') player.heroColor = '#ff007f';
+            if(selectedHero === 'sigma') player.heroColor = '#00ffff';
+
             menuOverlay.classList.add('hidden');
             settleOverlay.classList.add('hidden');
+            rogueOverlay.classList.add('hidden');
             gameActive = true;
             
             lastTime = performance.now();
-            requestAnimationFrame(gameLoop);
+            requestAnimationFrame(updateEngine);
         }
 
-        // 觸控與滑動控制主角移動
-        let touchStartX = 0;
-        let touchStartY = 0;
+        // 彈性觸控
+        let touchX = 0; let touchY = 0;
         canvas.addEventListener('touchstart', (e) => {
-            if(!gameActive) return;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
+            if(!gameActive || isPausedForRogue) return;
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
-            if(!gameActive) return;
+            if(!gameActive || isPausedForRogue) return;
             e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const touchY = e.touches[0].clientY;
+            let dx = e.touches[0].clientX - touchX;
+            let dy = e.touches[0].clientY - touchY;
             
-            const dx = touchX - touchStartX;
-            const dy = touchY - touchStartY;
+            player.x += dx * 1.2;
+            player.y += dy * 1.2;
             
-            player.x += dx * 0.8;
-            player.y += dy * 0.8;
+            if (player.x < 20) player.x = 20;
+            if (player.x > canvas.width - 20) player.x = canvas.width - 20;
+            if (player.y < canvas.height * 0.3) player.y = canvas.height * 0.3;
+            if (player.y > canvas.height - 30) player.y = canvas.height - 30;
             
-            // 限制邊界
-            if (player.x < player.size) player.x = player.size;
-            if (player.x > canvas.width - player.size) player.x = canvas.width - player.size;
-            if (player.y < canvas.height * 0.4) player.y = canvas.height * 0.4;
-            if (player.y > canvas.height - player.size) player.y = canvas.height - player.size;
-            
-            touchStartX = touchX;
-            touchStartY = touchY;
+            touchX = e.touches[0].clientX;
+            touchY = e.touches[0].clientY;
         }, { passive: false });
 
-        // 雙擊釋放技能
-        let lastTap = 0;
-        canvas.addEventListener('touchend', (e) => {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) {
-                triggerSkill();
-            }
-            lastTap = currentTime;
+        // 雙擊大招
+        let lastTapTime = 0;
+        canvas.addEventListener('touchend', () => {
+            if(isPausedForRogue) return;
+            let now = performance.now();
+            if(now - lastTapTime < 300) launchTimeSkill();
+            lastTapTime = now;
         });
 
-        function triggerSkill() {
-            if (skillCooldown > 0) return;
-            skillCooldown = selectedHero === 'daytrade' ? 8 : (selectedHero === 'allin' ? 12 : 15);
+        function launchTimeSkill() {
+            if(skillCooldown > 0 || !gameActive) return;
+            skillCooldown = 12;
             
-            // 釋放全螢幕彈幕清場
-            for(let i=0; i<36; i++) {
-                let angle = (i * 10) * Math.PI / 180;
-                bullets.push({
-                    x: player.x, y: player.y,
-                    vx: Math.cos(angle) * 7, vy: Math.sin(angle) * 7,
-                    size: 6, color: '#00ffff', text: '⚡週轉金護體⚡'
+            createExplosion(player.x, player.y, '#ffcd00', 40);
+            textMemes.push({ x: player.x, y: player.y - 30, text: "✨不當賠·違約交割時空術!✨", color: '#ffa500', size: 18, life: 1.5 });
+            
+            enemies.forEach(e => {
+                money += 10000 * wave;
+                createExplosion(e.x, e.y, '#ff007f', 10);
+            });
+            enemies = [];
+
+            if(boss) {
+                boss.hp -= 150;
+                textMemes.push({ x: boss.x, y: boss.y, text: "💥 外資大戶慘遭斷頭打擊 -150", color: '#ff3333', size: 14, life: 1 });
+            }
+        }
+
+        // 觸發 Roguelike 三選一介面
+        function triggerRogueUpgrade() {
+            isPausedForRogue = true;
+            rogueCardsBox.innerHTML = '';
+            
+            // 隨機打亂並抽取 3 個不重複的天賦
+            let shuffled = [...rogueTalents].sort(() => 0.5 - Math.random());
+            let selected = shuffled.slice(0, 3);
+            
+            selected.forEach(talent => {
+                let card = document.createElement('div');
+                card.className = 'rogue-card';
+                card.innerHTML = `
+                    <div class="rogue-card-title">${talent.title}</div>
+                    <div class="rogue-card-desc">${talent.desc}</div>
+                `;
+                
+                // 綁定點擊/觸控事件
+                const selectFn = (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    applyTalent(talent.id);
+                };
+                card.addEventListener('touchstart', selectFn, { passive: false });
+                card.addEventListener('click', selectFn);
+                
+                rogueCardsBox.appendChild(card);
+            });
+            
+            rogueOverlay.classList.remove('hidden');
+        }
+
+        // 套用天賦增幅並恢復遊戲
+        function applyTalent(id) {
+            if(id === 'atk_speed') attackSpeedBuff += 0.25;
+            if(id === 'bullet_size') bulletSizeBuff += 0.4;
+            if(id === 'add_drone') extraDroneCount += 1;
+            if(id === 'insurance') insuranceCount += 1;
+            if(id === 'dividend') rogueTalents.find(t=>t.id==='dividend').multiplier = (rogueTalents.find(t=>t.id==='dividend').multiplier || 1.0) + 0.3;
+
+            rogueOverlay.classList.add('hidden');
+            isPausedForRogue = false;
+            
+            // 恢復時間軸
+            lastTime = performance.now();
+            requestAnimationFrame(updateEngine);
+        }
+
+        function createExplosion(x, y, color, count=10) {
+            for(let i=0; i<count; i++) {
+                let angle = Math.random() * Math.PI * 2;
+                let spd = Math.random() * 4 + 2;
+                particles.push({
+                    x: x, y: y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
+                    radius: Math.random() * 3 + 1, color: color, alpha: 1, life: Math.random() * 0.4 + 0.3
                 });
             }
         }
 
-        // 遊戲主迴圈
+        // 遊戲主迴圈引擎
         let lastTime = 0;
-        function gameLoop(timestamp) {
-            if (!gameActive) return;
-            
+        let shotTimer = 0;
+        function updateEngine(timestamp) {
+            if(!gameActive) return;
+            if(isPausedForRogue) return; // 被暫停則不往下跑渲染與物理
+
             let dt = (timestamp - lastTime) / 1000;
-            if(dt > 0.1) dt = 0.1; // 防止背景喚醒大暴衝
+            if(dt > 0.1) dt = 0.1;
             lastTime = timestamp;
+
+            ctx.fillStyle = '#0b0c10';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(skillCooldown > 0) skillCooldown -= dt;
             
-            // 技能冷卻倒數
-            if (skillCooldown > 0) {
-                skillCooldown -= dt;
-                if (skillCooldown < 0) skillCooldown = 0;
-            }
-            
-            // 自動射擊
-            enemySpawnTimer += dt;
-            if (bullets.length < 50 && Math.random() < 0.15) {
-                bullets.push({
-                    x: player.x, y: player.y - player.size,
-                    vx: 0, vy: -8, size: 4, color: '#39ff14'
-                });
-            }
-            
-            // 生產慘戶敵軍
-            let spawnRate = Math.max(0.3, 1.5 - wave * 0.1);
-            if (enemySpawnTimer > spawnRate) {
-                enemySpawnTimer = 0;
-                enemies.push({
-                    x: Math.random() * (canvas.width - 40) + 20, y: -20,
-                    vy: Math.random() * 2 + 1 + wave * 0.2,
-                    size: 15,
-                    text: texts[Math.floor(Math.random() * texts.length)]
-                });
-            }
-            
-            // 更新並繪製子彈
-            for (let i = bullets.length - 1; i >= 0; i--) {
-                let b = bullets[i];
-                b.x += b.vx; b.y += b.vy;
+            // 波段計時：每 15 秒推進一個波段並觸發 Roguelike 升級
+            waveTimer += dt;
+            if(waveTimer > 15) {
+                wave++;
+                waveTimer = 0;
                 
-                ctx.fillStyle = b.color;
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, b.size, 0, Math.PI*2);
-                ctx.fill();
-                
-                if (b.text) {
-                    ctx.fillStyle = '#00ffff';
-                    ctx.font = '10px sans-serif';
-                    ctx.fillText(b.text, b.x - 20, b.y - 8);
+                // 💥 判定是否在偶數波段生成「三大法人 Boss」
+                if(wave % 2 === 0 && !boss) {
+                    boss = {
+                        x: canvas.width / 2, y: -60, targetY: 100,
+                        w: 120, h: 50, hp: 400 + wave * 150, maxHp: 400 + wave * 150,
+                        shootTimer: 0, moveDir: 1
+                    };
+                    textMemes.push({ x: canvas.width/2, y: 150, text: "⚠️ 外資提款機大波段砸盤降臨！", color: '#ff3333', size: 16, life: 2.5 });
                 }
                 
-                if (b.y < -50 || b.y > canvas.height + 50 || b.x < -50 || b.x > canvas.width + 50) {
-                    bullets.splice(i, 1);
-                }
+                triggerRogueUpgrade();
+                return;
             }
             
-            // 更新並繪製敵軍
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                let e = enemies[i];
-                e.y += e.vy;
+            // 無限火網發射器
+            shotTimer += dt;
+            let baseInterval = selectedHero === 'chloe' ? 0.12 : 0.22;
+            let fireInterval = baseInterval / attackSpeedBuff; // 套用射速 Buff
+            
+            if(shotTimer >= fireInterval) {
+                shotTimer = 0;
+                let bSize = (selectedHero === 'leon' ? 6 : 4) * bulletSizeBuff; // 套用體積 Buff
                 
-                ctx.fillStyle = 'rgba(255, 71, 87, 0.2)';
-                ctx.strokeStyle = '#ff4757';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(e.x, e.y, e.size, 0, Math.PI*2);
-                ctx.fill();
-                ctx.stroke();
+                if(selectedHero === 'leon') {
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -10, size: bSize, color: '#39ff14' });
+                } else if(selectedHero === 'chloe') {
+                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: -2, vy: -9, size: bSize, color: '#ff007f' });
+                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 2, vy: -9, size: bSize, color: '#ff007f' });
+                } else {
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -9, size: bSize, color: '#00ffff' });
+                }
+            }
+
+            // 動態渲染所有疊加的「散戶清除浮游砲」
+            if(extraDroneCount > 0 && Math.random() < 0.12) {
+                for(let d=0; d<extraDroneCount; d++) {
+                    // 分散左右排列開火
+                    let offset = (d % 2 === 0 ? -30 - (d*6) : 26 + (d*6));
+                    bullets.push({ x: player.x + offset, y: player.y, vx: 0, vy: -10, size: 3, color: '#a855f7' });
+                }
+            }
+
+            // 💥 三大法人大魔王（Boss）AI 行為與彈幕控制
+            if(boss) {
+                // 緩緩進場至 targetY
+                if(boss.y < boss.targetY) boss.y += 2;
+                else {
+                    // 左右徘徊橫移
+                    boss.x += boss.moveDir * 1.5;
+                    if(boss.x < 80 || boss.x > canvas.width - 80) boss.moveDir *= -1;
+                }
                 
-                ctx.fillStyle = '#ff6b81';
+                // 魔王血條與霓虹機體渲染
+                ctx.save();
+                ctx.strokeStyle = '#ff3333';
+                ctx.fillStyle = '#1a1315';
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ff3333';
+                ctx.fillRect(boss.x - boss.w/2, boss.y - boss.h/2, boss.w, boss.h);
+                ctx.strokeRect(boss.x - boss.w/2, boss.y - boss.h/2, boss.w, boss.h);
+                
+                // 魔王文字標籤
+                ctx.fillStyle = '#fff';
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(e.text, e.x, e.y + 4);
+                ctx.fillText("⚠️ 三大法人 · 外資提款機", boss.x, boss.y + 4);
                 
-                // 子彈與敵軍碰撞檢測
-                for (let j = bullets.length - 1; j >= 0; j--) {
-                    let b = bullets[j];
-                    let dist = Math.hypot(b.x - e.x, b.y - e.y);
-                    if (dist < e.size + b.size) {
-                        enemies.splice(i, 1);
-                        bullets.splice(j, 1);
-                        money += 5000 * wave;
+                // 血條比例
+                let hpBarW = boss.w * (boss.hp / boss.maxHp);
+                ctx.fillStyle = '#ff3333';
+                ctx.fillRect(boss.x - boss.w/2, boss.y - boss.h/2 - 12, hpBarW, 5);
+                ctx.restore();
+                
+                // Boss 狂暴大彈幕發射
+                boss.shootTimer += dt;
+                if(boss.shootTimer > 0.4) {
+                    boss.shootTimer = 0;
+                    // 向下發射扇形「降評報告彈單」
+                    let angles = [-0.5, 0, 0.5];
+                    angles.forEach(ang => {
+                        enemies.push({
+                            x: boss.x, y: boss.y + boss.h/2,
+                            vy: 4, vx: ang * 3, radius: 12, text: "📉外資降評單!"
+                        });
+                    });
+                }
+            }
+
+            // 生產一般慘戶小兵
+            spawnTimer += dt;
+            let spawnRate = Math.max(0.25, 1.2 - wave * 0.08);
+            if(spawnTimer >= spawnRate) {
+                spawnTimer = 0;
+                enemies.push({
+                    x: Math.random() * (canvas.width - 60) + 30, y: -20,
+                    vy: Math.random() * 2 + 1.5 + wave * 0.2, vx: 0,
+                    radius: Math.random() * 10 + 15,
+                    text: enemyMemes[Math.floor(Math.random() * enemyMemes.length)]
+                });
+            }
+
+            // 子彈物理與邊界更新
+            for(let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.x += b.vx || 0; b.y += b.vy;
+                
+                ctx.fillStyle = b.color;
+                ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, Math.PI*2); ctx.fill();
+                
+                // 子彈擊中魔王 Boss 判定
+                if(boss && Math.abs(b.x - boss.x) < boss.w/2 && Math.abs(b.y - boss.y) < boss.h/2) {
+                    bullets.splice(i, 1);
+                    boss.hp -= (selectedHero === 'leon' && Math.random() < 0.3) ? 25 : 10; // 內線暴擊傷害
+                    createExplosion(b.x, b.y, '#ff3333', 4);
+                    
+                    if(boss.hp <= 0) {
+                        // 💥 擊碎外資大魔王：大噴發黃金雨與金錢
+                        let divBuff = rogueTalents.find(t=>t.id==='dividend').multiplier || 1.0;
+                        money += 500000 * divBuff; // 直接爆賺五十萬身價
                         if(money > maxMoney) maxMoney = money;
+                        
+                        textMemes.push({ x: boss.x, y: boss.y, text: "💰高割離席！感謝外資送分！+$500,000", color: '#ffcd00', size: 16, life: 3 });
+                        createExplosion(boss.x, boss.y, '#ffcd00', 50); // 黃金粒子雨
+                        boss = null;
+                    }
+                    continue;
+                }
+                
+                if(b.y < -20) bullets.splice(i, 1);
+            }
+
+            // 散戶/大彈幕物理與碰撞更新
+            for(let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                e.y += e.vy;
+                e.x += e.vx || 0;
+                
+                ctx.strokeStyle = '#ff334b';
+                ctx.fillStyle = 'rgba(255, 51, 75, 0.1)';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                
+                ctx.fillStyle = '#ff6b81';
+                ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(e.text, e.x, e.y + 4);
+
+                // 子彈與小兵碰撞
+                for(let j = bullets.length - 1; j >= 0; j--) {
+                    let b = bullets[j];
+                    if(Math.hypot(b.x - e.x, b.y - e.y) < e.radius + b.size) {
+                        bullets.splice(j, 1);
+                        
+                        let divBuff = rogueTalents.find(t=>t.id==='dividend').multiplier || 1.0;
+                        let gain = 6000 * wave * divBuff;
+                        
+                        if(selectedHero === 'leon' && Math.random() < 0.3) {
+                            gain *= 2;
+                            textMemes.push({ x: e.x, y: e.y, text: "🔥內線暴擊!!", color: '#39ff14', size: 15, life: 1 });
+                        }
+                        money += gain;
+                        if(money > maxMoney) maxMoney = money;
+
+                        if(Math.random() < 0.3) {
+                            textMemes.push({
+                                x: e.x, y: e.y - 10,
+                                text: hitMemes[Math.floor(Math.random() * hitMemes.length)],
+                                color: player.heroColor, size: 12, life: 0.8
+                            });
+                        }
+
+                        createExplosion(e.x, e.y, player.heroColor, 6);
+                        enemies.splice(i, 1);
                         break;
                     }
                 }
-                
-                // 敵軍穿越底線或撞擊玩家
-                if (gameActive && e.y > canvas.height + 20) {
+
+                // 斷頭打擊判定
+                if(gameActive && (e.y > canvas.height + 20 || Math.hypot(player.x - e.x, player.y - e.y) < e.radius + 15)) {
+                    let penalty = e.y > canvas.height + 20 ? 25000 : 40000;
                     enemies.splice(i, 1);
-                    money -= 35000; // 斷頭打擊
-                    if (money <= 0) gameOver();
-                } else if (gameActive && Math.hypot(player.x - e.x, player.y - e.y) < player.size + e.size) {
-                    enemies.splice(i, 1);
-                    money -= 50000;
-                    if (money <= 0) gameOver();
+                    money -= penalty;
+                    
+                    createExplosion(player.x, player.y, '#ff3333', 15);
+                    textMemes.push({ x: player.x, y: player.y - 20, text: "断頭打擊!📉", color: '#ff3333', size: 14, life: 1 });
+                    
+                    if(money <= 0) {
+                        // 💎 觸發寬限期防死機制
+                        if(insuranceCount > 0) {
+                            insuranceCount--;
+                            money = 100000; // 注入救命金
+                            textMemes.push({ x: player.x, y: player.y - 40, text: "✨ 寬限期護體！融資救命金注入！", color: '#00ffff', size: 15, life: 2.5 });
+                        } else {
+                            triggerGameOver();
+                            return;
+                        }
+                    }
                 }
             }
-            
-            // 繪製玩家主角
-            ctx.fillStyle = selectedHero === 'allin' ? '#ff4757' : (selectedHero === 'daytrade' ? '#ffa502' : '#00ffff');
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = ctx.fillStyle;
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.size, 0, Math.PI*2);
-            ctx.fill();
-            ctx.shadowBlur = 0; // 重設發光
-            
-            // 繪製頂部狀態列
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 16px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(`當前身價: $${money.toLocaleString()}`, 15, 30);
-            
-            ctx.textAlign = 'right';
-            ctx.font = '13px sans-serif';
-            ctx.fillText(`雙擊釋放特技 (CD: ${Math.ceil(skillCooldown)}s)`, canvas.width - 15, 30);
-            
-            // 波段自動升級
-            if (Math.random() < 0.001) wave++;
 
-            requestAnimationFrame(gameLoop);
+            // 繪製主角戰機
+            ctx.save();
+            ctx.shadowBlur = 15; ctx.shadowColor = player.heroColor;
+            ctx.fillStyle = player.heroColor;
+            ctx.beginPath();
+            if(selectedHero === 'leon') {
+                ctx.moveTo(player.x, player.y - 18); ctx.lineTo(player.x + 16, player.y + 12); ctx.lineTo(player.x - 16, player.y + 12);
+            } else if(selectedHero === 'chloe') {
+                ctx.moveTo(player.x, player.y - 16); ctx.lineTo(player.x + 12, player.y - 2); ctx.lineTo(player.x + 20, player.y + 12); ctx.lineTo(player.x - 20, player.y + 12); ctx.lineTo(player.x - 12, player.y - 2);
+            } else {
+                ctx.rect(player.x - 14, player.y - 14, 28, 28);
+            }
+            ctx.closePath(); ctx.fill();
+            ctx.restore();
+
+            // 繪製周圍浮游砲外觀
+            if(extraDroneCount > 0) {
+                ctx.fillStyle = '#a855f7';
+                for(let d=0; d<extraDroneCount; d++) {
+                    let offset = (d % 2 === 0 ? -32 - (d*6) : 26 + (d*6));
+                    ctx.fillRect(player.x + offset, player.y + 2, 6, 10);
+                }
+            }
+
+            // 爆炸粒子
+            for(let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= dt;
+                ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life);
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2); ctx.fill();
+                if(p.life <= 0) particles.splice(i, 1);
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 漂浮文字
+            for(let i = textMemes.length - 1; i >= 0; i--) {
+                let m = textMemes[i]; m.y -= 30 * dt; m.life -= dt;
+                ctx.fillStyle = m.color; ctx.font = `bold ${m.size}px sans-serif`;
+                ctx.textAlign = 'center'; ctx.fillText(m.text, m.x, m.y);
+                if(m.life <= 0) textMemes.splice(i, 1);
+            }
+
+            // 更新即時 HUD
+            let ratio = Math.floor((money / 150000) * 120);
+            if(money <= 0) ratio = 0;
+            hudWave.innerText = wave < 10 ? '0' + wave : wave;
+            hudMoney.innerText = `$${money.toLocaleString()}`;
+            hudRatio.innerText = `${ratio}%`;
+            hudRatio.style.color = ratio < 110 ? '#ff3333' : '#ff007f';
+
+            requestAnimationFrame(updateEngine);
         }
 
-        // 遊戲結束結算
-        function gameOver() {
-            gameActive = false;
-            money = 0;
-            
+        function triggerGameOver() {
+            gameActive = false; money = 0;
             document.getElementById('settle-score').innerText = `$${maxMoney.toLocaleString()}`;
             settleOverlay.classList.remove('hidden');
-            showRankings();
+            loadLeaderboard();
         }
 
-        // 🏆 排行榜富豪榜資料引擎 (localStorage)
-        function showRankings() {
-            let ranks = JSON.parse(localStorage.getItem('cyber_stock_ranks')) || [
-                { name: "少年股神始祖", score: 500000 },
-                { name: "信義區割草機", score: 300000 },
-                { name: "慘戶一號", score: 100000 }
+        function loadLeaderboard() {
+            let data = JSON.parse(localStorage.getItem('cyber_stock_v6_ranks')) || [
+                { name: "Leon內線狂魔", score: 25000000 },
+                { name: "航海王高割離席", score: 12000000 },
+                { name: "竹科當沖韭菜", score: 1500000 }
             ];
-            
-            const box = document.getElementById('rank-items-box');
+            const box = document.getElementById('leader-box');
             box.innerHTML = '';
-            
-            ranks.sort((a,b) => b.score - a.score).slice(0, 5).forEach((item, index) => {
+            data.sort((a,b) => b.score - a.score).slice(0, 5).forEach((item, idx) => {
                 box.innerHTML += `
-                    <div class="rank-item">
-                        <span style="color:${index===0?'#39ff14':'#fff'}">第 ${index+1} 名: ${item.name}</span>
-                        <span style="color:#ff4757; font-weight:bold;">$${item.score.toLocaleString()}</span>
+                    <div class="leader-item">
+                        <span style="color:${idx===0?'#39ff14':'#fff'}">#0${idx+1} ${item.name}</span>
+                        <span style="color:#ffcd00; font-weight:bold;">$${item.score.toLocaleString()}</span>
                     </div>
                 `;
             });
         }
 
-        // 儲存名字點擊事件
-        function saveRankHandler(e) {
+        document.getElementById('btn-save').addEventListener('click', (e) => {
             e.preventDefault();
-            let name = playerNameInput.value.trim() || "無名韭菜";
-            let ranks = JSON.parse(localStorage.getItem('cyber_stock_ranks')) || [];
-            
-            ranks.push({ name: name, score: maxMoney });
-            ranks.sort((a,b) => b.score - a.score);
-            localStorage.setItem('cyber_stock_ranks', JSON.stringify(ranks));
-            
-            showRankings();
-            alert("歷史紀錄寫入成功！富豪榜已更新。");
-            document.getElementById('btn-save').disabled = true;
-        }
+            let name = playerNameInput.value.trim() || "無名散戶";
+            let data = JSON.parse(localStorage.getItem('cyber_stock_v6_ranks')) || [];
+            data.push({ name: name, score: maxMoney });
+            data.sort((a,b) => b.score - a.score);
+            localStorage.setItem('cyber_stock_v6_ranks', JSON.stringify(data));
+            loadLeaderboard();
+            alert("寫入成功！富豪榜已重新排列。");
+            e.currentTarget.disabled = true;
+        });
 
-        document.getElementById('btn-save').addEventListener('click', saveRankHandler);
-
-        // 重新開始
-        function restartHandler(e) {
+        document.getElementById('btn-restart').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('btn-save').disabled = false;
             playerNameInput.value = '';
-            settleOverlay.classList.add('hidden');
-            menuOverlay.classList.remove('hidden');
-        }
-        document.getElementById('btn-restart').addEventListener('click', restartHandler);
+            startGame();
+        });
     </script>
 </body>
 </html>
