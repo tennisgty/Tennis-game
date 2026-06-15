@@ -6,7 +6,7 @@
     <title>CYBER TAIWAN 2026：少年股神覺醒</title>
     <style>
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
-        body { margin: 0; padding: 0; background-color: #050508; color: #fff; font-family: 'PingFang TC', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        body { margin: 0; padding: 0; background-color: #050508; color: #fff; font-family: 'PingFang TC', "Microsoft JhengHei", sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
         
         #game-container { position: relative; width: 100%; max-width: 450px; height: 100vh; background: #050508; overflow: hidden; box-shadow: 0 0 40px rgba(0, 255, 255, 0.1); }
         canvas { display: block; width: 100%; height: 100%; position: relative; z-index: 2; }
@@ -19,7 +19,7 @@
         }
 
         #hud-panel { position: absolute; top: 15px; left: 0; width: 100%; display: flex; justify-content: space-around; padding: 0 10px; z-index: 10; pointer-events: none; }
-        .hud-box { background: rgba(10, 12, 20, 0.85); border: 1px solid #1f2438; border-radius: 6px; padding: 6px 10px; text-align: center; min-width: 85px; box-shadow: 0 0 15px rgba(0,0,0,0.8); backdrop-filter: blur(4px); }
+        .hud-box { background: rgba(10, 12, 20, 0.85); border: 1px solid #1f2438; border-radius: 6px; padding: 6px 10px; text-align: center; min-width: 85px; box-shadow: 0 0 15px rgba(0,0,0,0.8); backdrop-filter: blur(4px); transition: border-color 0.3s; }
         .hud-label { font-size: 10px; color: #8f9cae; margin-bottom: 3px; font-weight: bold; letter-spacing: 1px; }
         .hud-val { font-size: 16px; font-weight: 900; font-family: monospace; }
         
@@ -28,8 +28,8 @@
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; }
         .hidden { display: none !important; }
         
-        .title-cyber { font-size: 34px; font-weight: 900; color: #00ffff; text-shadow: 0 0 20px #00ffff, 0 0 40px #0088ff; letter-spacing: 2px; margin-bottom: 5px; font-style: italic; }
-        .subtitle { font-size: 12px; color: #ff007f; font-weight: bold; letter-spacing: 4px; margin-bottom: 40px; text-shadow: 0 0 10px #ff007f; }
+        .title-cyber { font-size: 34px; font-weight: 900; color: #00ffff; text-shadow: 0 0 20px #00ffff, 0 0 40px #0088ff; letter-spacing: 2px; margin-bottom: 5px; font-style: italic; text-align: center; }
+        .subtitle { font-size: 12px; color: #ff007f; font-weight: bold; letter-spacing: 4px; margin-bottom: 40px; text-shadow: 0 0 10px #ff007f; text-align: center; }
         
         .hero-list { width: 100%; display: flex; flex-direction: column; gap: 15px; max-width: 380px; }
         .hero-card { background: linear-gradient(145deg, #10121b, #0a0b10); border: 1px solid #22263f; border-radius: 12px; padding: 18px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
@@ -44,11 +44,13 @@
         .hero-header { font-size: 16px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
         .hero-desc { font-size: 12px; color: #8a93a8; line-height: 1.5; }
         
-        /* Roguelike 選單美化 */
-        .rogue-title { font-size: 26px; font-weight: 900; color: #ffcd00; text-shadow: 0 0 15px rgba(255,205,0,0.6); margin-bottom: 10px; }
-        .rogue-card { background: rgba(20, 24, 38, 0.9); border: 1px solid #343a56; border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: all 0.2s; margin-bottom: 12px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .rogue-card:active { transform: scale(0.95); background: #1e233d; border-color: #00ffff; }
-        .rogue-card-title { font-size: 15px; font-weight: bold; color: #00ffff; margin-bottom: 6px; }
+        /* 升級選單美化 */
+        .rogue-title { font-size: 24px; font-weight: 900; color: #00ff00; text-shadow: 0 0 15px rgba(0,255,0,0.6); margin-bottom: 10px; text-align: center;}
+        .rogue-card { background: rgba(20, 24, 38, 0.95); border: 2px solid #343a56; border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: all 0.2s; margin-bottom: 15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); width: 100%; }
+        .rogue-card:active { transform: scale(0.95); background: #1e233d; }
+        .rogue-card:hover { border-color: #00ff00; }
+        .rogue-card-title { font-size: 18px; font-weight: bold; color: #ffeb3b; margin-bottom: 6px; }
+        .rogue-card-desc { font-size: 13px; color: #bbb; }
         
         .btn-cyber { width: 85%; max-width: 320px; padding: 15px; font-size: 15px; font-weight: 900; border: none; border-radius: 8px; cursor: pointer; background: linear-gradient(90deg, #ff007f, #7000ff); color: #fff; box-shadow: 0 0 20px rgba(255,0,127,0.4); text-transform: uppercase; letter-spacing: 2px; margin-top: 20px; }
         .btn-cyber:active { transform: scale(0.95); }
@@ -62,12 +64,12 @@
         <div class="crt-overlay"></div>
         
         <div id="hud-panel">
-            <div class="hud-box" style="border-color:#ffa500;"><div class="hud-label">WAVE</div><div id="hud-wave" class="hud-val" style="color:#ffa500;">01</div></div>
-            <div class="hud-box" style="border-color:#39ff14;"><div class="hud-label">NET WORTH</div><div id="hud-money" class="hud-val" style="color:#39ff14;">$150,000</div></div>
-            <div class="hud-box" style="border-color:#ff007f;"><div class="hud-label">MARGIN</div><div id="hud-ratio" class="hud-val" style="color:#ff007f;">120%</div></div>
+            <div class="hud-box" id="box-wave" style="border-color:#ffa500;"><div class="hud-label">WAVE</div><div id="hud-wave" class="hud-val" style="color:#ffa500;">01</div></div>
+            <div class="hud-box" id="box-money" style="border-color:#39ff14;"><div class="hud-label">NET WORTH</div><div id="hud-money" class="hud-val" style="color:#39ff14;">$150,000</div></div>
+            <div class="hud-box" id="box-ratio" style="border-color:#ff007f;"><div class="hud-label">MARGIN</div><div id="hud-ratio" class="hud-val" style="color:#ff007f;">120%</div></div>
         </div>
 
-        <div id="skill-toast">⚡ 雙擊：不當賠·時空斷裂 ⚡</div>
+        <div id="skill-toast">⚡ 雙擊：違約交割·時空斷裂 ⚡</div>
 
         <canvas id="gameCanvas"></canvas>
 
@@ -92,7 +94,7 @@
         </div>
 
         <div id="rogue-overlay" class="overlay hidden">
-            <div class="rogue-title">⚠️ 融資擴張</div>
+            <div class="rogue-title">📈 身價大突破！請選擇盤後布局 📉</div>
             <div style="font-size:12px; color:#8f9cae; margin-bottom:20px;">選擇你的暗黑兵法</div>
             <div style="width:100%; max-width:380px;" id="rogue-cards-box"></div>
         </div>
@@ -121,49 +123,70 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // --- 核心變數 ---
+        // === 核心變數與狀態 ===
         let gameActive = false, isPaused = false;
-        let selectedHero = 'leon', money = 150000, wave = 1;
-        let waveTimer = 0, spawnTimer = 0, skillCooldown = 0, screenShakeTime = 0;
+        let selectedHero = 'leon', money = 150000, maxMoney = 150000, wave = 1;
+        let waveTimer = 0, spawnTimer = 0, skillCooldown = 0;
         
-        let player = { x: 0, y: 0, color: '#fff' };
-        let bullets = [], enemies = [], enemyBullets = [], particles = [], floatTexts = [], boss = null;
-        
-        // 增幅數值 (限制上限防止崩潰)
-        let stats = { atkSpeed: 1.0, bulletSize: 1.0, drones: 0, revive: 0, income: 1.0 };
-        
-        // 視覺：背景網格滾動
+        // 螢幕震動與特效變數
+        let shakeTime = 0, shakeAmount = 0;
         let gridOffset = 0;
 
-        const talents = [
-            { id: 'atk', t: '⚡ 當沖手速', d: '射速提升 25%' },
-            { id: 'size', t: '🔥 融資爆破', d: '子彈體積增強 30%' },
-            { id: 'drone', t: '🤖 算力升級', d: '增加 1 架浮游砲' },
-            { id: 'life', t: '🛡️ 寬限期', d: '獲得 1 次免死復活' },
-            { id: 'money', t: '💰 左手換右手', d: '擊殺收益提升 40%' }
+        let player = { 
+            x: 0, y: 0, color: '#fff', 
+            damage: 1.0, atkSpeed: 1.0, critRate: 0.1, 
+            hasShield: false, drones: 0, bulletSize: 1.0 
+        };
+        
+        let bullets = [], enemies = [], enemyBullets = [], particles = [], floatTexts = [], boss = null;
+
+        // === 台股天賦庫 (Rogue-lite) ===
+        const stockUpgrades = [
+            { id: 'national_fund', name: '🏛️ 國安基金護盤', desc: '獲得一次抵擋致死傷害（斷頭）的護盾', effect: () => { player.hasShield = true; createFloatingText(player.x, player.y, "護盾啟動!", "#00ffff"); } },
+            { id: 'main_force', name: '🚀 主力強力拉抬', desc: '射速大幅提升 30%', effect: () => { player.atkSpeed *= 1.30; } },
+            { id: 'inside_info', name: '🤫 內線第一手消息', desc: '爆擊率（飆股機率）提升 25%', effect: () => { player.critRate += 0.25; } },
+            { id: 'margin_call', name: '💸 開滿融資槓桿', desc: '子彈傷害 +50%，但怪物生成速度加快', effect: () => { player.damage *= 1.5; player.marginRisk = true; } },
+            { id: 'chips_analysis', name: '📊 籌碼面神鬼分析', desc: '解鎖 1 架自動跟隨的浮游砲', effect: () => { player.drones += 1; } },
+            { id: 'limit_up', name: '🔥 漲停板爆破', desc: '子彈體積增強 40%，覆蓋率大增', effect: () => { player.bulletSize *= 1.4; } }
         ];
 
-        // --- 輸入控制 ---
+        // === 控制輸入 ===
         let tx = 0, ty = 0;
-        canvas.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
-        canvas.addEventListener('touchmove', e => {
+        // 支援滑鼠與觸控
+        function startDrag(e) {
+            if(!gameActive || isPaused) return;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            tx = clientX; ty = clientY;
+        }
+        function drag(e) {
             if(!gameActive || isPaused) return;
             e.preventDefault();
-            player.x += (e.touches[0].clientX - tx) * 1.3;
-            player.y += (e.touches[0].clientY - ty) * 1.3;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            player.x += (clientX - tx) * 1.5;
+            player.y += (clientY - ty) * 1.5;
             player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
             player.y = Math.max(canvas.height*0.3, Math.min(canvas.height - 30, player.y));
-            tx = e.touches[0].clientX; ty = e.touches[0].clientY;
-        }, {passive:false});
+            tx = clientX; ty = clientY;
+        }
+
+        canvas.addEventListener('touchstart', startDrag, {passive:true});
+        canvas.addEventListener('touchmove', drag, {passive:false});
+        canvas.addEventListener('mousedown', startDrag);
+        canvas.addEventListener('mousemove', e => { if(e.buttons === 1) drag(e); });
 
         let lastTap = 0;
-        canvas.addEventListener('touchend', () => {
+        function handleTap() {
             if(!gameActive || isPaused) return;
             let now = performance.now();
             if(now - lastTap < 300 && skillCooldown <= 0) triggerUltimate();
             lastTap = now;
-        });
+        }
+        canvas.addEventListener('touchend', handleTap);
+        canvas.addEventListener('mouseup', handleTap);
 
+        // 綁定選單按鈕
         document.querySelectorAll('.hero-card').forEach(c => {
             c.addEventListener('click', (e) => {
                 selectedHero = e.currentTarget.dataset.hero;
@@ -171,57 +194,31 @@
                 startGame();
             });
         });
-
         document.getElementById('btn-restart').addEventListener('click', startGame);
 
+        // === 遊戲核心邏輯 ===
         function startGame() {
             Object.values(overlays).forEach(o => o.classList.add('hidden'));
             gameActive = true; isPaused = false;
-            money = 150000; wave = 1; waveTimer = 0; spawnTimer = 0; skillCooldown = 0; screenShakeTime = 0;
-            stats = { atkSpeed: 1.0, bulletSize: 1.0, drones: selectedHero==='sigma'?2:0, revive: 0, income: 1.0 };
-            bullets = []; enemies = []; enemyBullets = []; particles = []; floatTexts = []; boss = null;
-            player.x = canvas.width / 2; player.y = canvas.height * 0.8;
-            lastTime = performance.now();
-            requestAnimationFrame(gameLoop);
-        }
-
-        function triggerUltimate() {
-            skillCooldown = 15;
-            screenShakeTime = 0.5; // 強烈震動
-            createExplosion(player.x, player.y, '#fff', 50);
-            floatTexts.push({ x: player.x, y: player.y - 40, txt: "時空斷裂!", col: '#fff', life: 1.5 });
+            money = 150000; maxMoney = 150000; wave = 1; waveTimer = 0; spawnTimer = 0; skillCooldown = 0;
             
-            enemies.forEach(e => { money += 15000 * wave; createExplosion(e.x, e.y, '#ff007f', 15); });
-            enemyBullets.forEach(b => createExplosion(b.x, b.y, '#ff3333', 5));
-            enemies = []; enemyBullets = [];
-            if(boss) boss.hp -= boss.maxHp * 0.3; // 扣除 Boss 30% 血量
-        }
-
-        function showRogueUI() {
-            isPaused = true;
-            const box = document.getElementById('rogue-cards-box');
-            box.innerHTML = '';
-            let shuffled = [...talents].sort(() => 0.5 - Math.random()).slice(0, 3);
-            shuffled.forEach(t => {
-                let div = document.createElement('div');
-                div.className = 'rogue-card';
-                div.innerHTML = `<div class="rogue-card-title">${t.t}</div><div style="font-size:12px;color:#a0a5c0;">${t.d}</div>`;
-                div.onclick = () => applyTalent(t.id);
-                box.appendChild(div);
-            });
-            overlays.rogue.classList.remove('hidden');
-        }
-
-        function applyTalent(id) {
-            if(id==='atk') stats.atkSpeed += 0.25;
-            if(id==='size') stats.bulletSize += 0.3;
-            if(id==='drone') stats.drones++;
-            if(id==='life') stats.revive++;
-            if(id==='money') stats.income += 0.4;
-            overlays.rogue.classList.add('hidden');
-            isPaused = false;
+            // 初始化玩家狀態
+            player.x = canvas.width / 2; player.y = canvas.height * 0.8;
+            player.damage = 1.0; player.atkSpeed = 1.0; player.critRate = (selectedHero==='leon'?0.25:0.05);
+            player.hasShield = false; player.drones = (selectedHero==='sigma'?2:0); player.bulletSize = 1.0;
+            player.marginRisk = false;
+            
+            bullets = []; enemies = []; enemyBullets = []; particles = []; floatTexts = []; boss = null;
             lastTime = performance.now();
             requestAnimationFrame(gameLoop);
+        }
+
+        function triggerShake(duration, amount) {
+            shakeTime = duration; shakeAmount = amount;
+        }
+
+        function createFloatingText(x, y, text, color) {
+            floatTexts.push({ x: x, y: y, txt: text, col: color, life: 1.5, maxLife: 1.5, vy: -40 });
         }
 
         function createExplosion(x, y, color, count=10) {
@@ -231,26 +228,91 @@
             }
         }
 
+        function triggerUltimate() {
+            skillCooldown = 15;
+            triggerShake(20, 15); // 強烈震動
+            createExplosion(player.x, player.y, '#fff', 50);
+            createFloatingText(player.x, player.y - 40, "違約交割!", '#fff');
+            
+            // 清除全場小怪並賺錢
+            enemies.forEach(e => { 
+                let gain = 15000 * wave; money += gain; 
+                createExplosion(e.x, e.y, '#ff007f', 15); 
+                createFloatingText(e.x, e.y, `+$${gain.toLocaleString()}`, '#00ff00');
+            });
+            enemyBullets.forEach(b => createExplosion(b.x, b.y, '#ff3333', 5));
+            enemies = []; enemyBullets = [];
+            if(boss) boss.hp -= boss.maxHp * 0.3; // 扣除 Boss 30% 血量
+        }
+
+        function triggerUpgradeMenu() {
+            isPaused = true;
+            const box = document.getElementById('rogue-cards-box');
+            box.innerHTML = '';
+            
+            // 洗牌抽取3個
+            let shuffled = [...stockUpgrades].sort(() => 0.5 - Math.random()).slice(0, 3);
+            shuffled.forEach(t => {
+                let div = document.createElement('div');
+                div.className = 'rogue-card';
+                div.innerHTML = `<div class="rogue-card-title">${t.name}</div><div class="rogue-card-desc">${t.desc}</div>`;
+                div.onclick = () => {
+                    t.effect();
+                    overlays.rogue.classList.add('hidden');
+                    isPaused = false;
+                    lastTime = performance.now();
+                    requestAnimationFrame(gameLoop);
+                };
+                box.appendChild(div);
+            });
+            overlays.rogue.classList.remove('hidden');
+        }
+
+        function takeDamage(amt) {
+            if(player.hasShield && amt >= money) {
+                player.hasShield = false;
+                money = 50000;
+                createFloatingText(player.x, player.y, "國安基金護盤!", "#00ffff");
+                triggerShake(10, 5);
+                return;
+            }
+            
+            money -= amt;
+            triggerShake(15, 8);
+            createExplosion(player.x, player.y, '#ff3333', 15);
+            createFloatingText(player.x, player.y, `-$${amt.toLocaleString()}`, '#ff0000');
+            document.getElementById('box-ratio').style.borderColor = '#ff3333';
+            
+            if(money <= 0) {
+                gameActive = false;
+                document.getElementById('settle-score').innerText = `$${Math.max(0, Math.floor(money)).toLocaleString()}`;
+                overlays.settle.classList.remove('hidden');
+            }
+        }
+
         let lastTime = 0, shotTimer = 0;
+        
+        // === 遊戲主循環 ===
         function gameLoop(timestamp) {
             if(!gameActive) return;
-            if(isPaused) return;
+            if(isPaused) return; // 升級選單開啟時暫停邏輯
             
             let dt = Math.min((timestamp - lastTime) / 1000, 0.1);
             lastTime = timestamp;
 
-            // 繪製背景與網格
+            // 1. 繪製背景與網格
             ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 畫面震動系統
             ctx.save();
-            if(screenShakeTime > 0) {
-                screenShakeTime -= dt;
-                let dx = (Math.random() - 0.5) * 15;
-                let dy = (Math.random() - 0.5) * 15;
+            // 螢幕震動計算
+            if(shakeTime > 0) {
+                let dx = (Math.random() - 0.5) * shakeAmount;
+                let dy = (Math.random() - 0.5) * shakeAmount;
                 ctx.translate(dx, dy);
+                shakeTime--;
             }
 
+            // 動態背景網格
             gridOffset = (gridOffset + 50 * dt) % 40;
             ctx.strokeStyle = 'rgba(0, 255, 255, 0.05)'; ctx.lineWidth = 1;
             ctx.beginPath();
@@ -259,126 +321,128 @@
             ctx.stroke();
 
             if(skillCooldown > 0) skillCooldown -= dt;
+            maxMoney = Math.max(maxMoney, money); // 紀錄最高資產用於計算維持率
 
-            // 波段推進
+            // 2. 波段推進與 Boss 生成
             waveTimer += dt;
             if(waveTimer > 15 && !boss) {
                 wave++; waveTimer = 0;
                 if(wave % 3 === 0) {
-                    boss = { x: canvas.width/2, y: -80, hp: 1000 * wave, maxHp: 1000 * wave, phaseTimer: 0, attackPhase: 0, moveAng: 0 };
-                    floatTexts.push({ x: canvas.width/2, y: canvas.height/2, txt: "⚠️ 外資主力進場 ⚠️", col: '#ff3333', life: 2.5 });
-                    screenShakeTime = 0.5;
+                    boss = { x: canvas.width/2, y: -80, hp: 1500 * wave, maxHp: 1500 * wave, phaseTimer: 0, attackPhase: 0, moveAng: 0 };
+                    createFloatingText(canvas.width/2, canvas.height/3, "⚠️ 外資主力進場 ⚠️", '#ff3333');
+                    triggerShake(20, 10);
                 } else {
-                    showRogueUI(); return;
+                    triggerUpgradeMenu(); return;
                 }
             }
 
-            // 玩家射擊 (限制最大子彈尺寸，防止遮蔽螢幕)
+            // 3. 玩家與僚機射擊
             shotTimer += dt;
-            let fireRate = (selectedHero === 'chloe' ? 0.1 : 0.2) / stats.atkSpeed;
+            let fireRate = (selectedHero === 'chloe' ? 0.12 : 0.25) / player.atkSpeed;
             if(shotTimer >= fireRate) {
                 shotTimer = 0;
-                // 強制封頂機制：基礎尺寸最大擴增 2.5 倍
-                let bSize = Math.min((selectedHero === 'leon' ? 6 : 4) * stats.bulletSize, 15); 
+                let bSize = Math.min((selectedHero === 'leon' ? 6 : 4) * player.bulletSize, 18); // 限制最大子彈尺寸
                 
-                if(selectedHero === 'leon') bullets.push({x: player.x, y: player.y-15, vx: 0, vy: -12, s: bSize, c: player.color, dmg: 1.5});
+                if(selectedHero === 'leon') bullets.push({x: player.x, y: player.y-15, vx: 0, vy: -12, s: bSize, c: player.color, dmg: 1.5 * player.damage});
                 else if(selectedHero === 'chloe') {
-                    bullets.push({x: player.x-10, y: player.y-10, vx: -3, vy: -10, s: bSize, c: player.color, dmg: 0.8});
-                    bullets.push({x: player.x+10, y: player.y-10, vx: 3, vy: -10, s: bSize, c: player.color, dmg: 0.8});
+                    bullets.push({x: player.x-10, y: player.y-10, vx: -3, vy: -10, s: bSize, c: player.color, dmg: 0.8 * player.damage});
+                    bullets.push({x: player.x+10, y: player.y-10, vx: 3, vy: -10, s: bSize, c: player.color, dmg: 0.8 * player.damage});
                 } else {
-                    bullets.push({x: player.x, y: player.y-15, vx: 0, vy: -11, s: bSize, c: player.color, dmg: 1.0});
+                    bullets.push({x: player.x, y: player.y-15, vx: 0, vy: -11, s: bSize, c: player.color, dmg: 1.0 * player.damage});
                 }
             }
 
-            // 浮游砲射擊
-            if(stats.drones > 0 && Math.random() < 0.15) {
-                for(let d=0; d<stats.drones; d++) {
+            // 浮游砲自動攻擊
+            if(player.drones > 0 && Math.random() < 0.2) {
+                for(let d=0; d<player.drones; d++) {
                     let off = d % 2 === 0 ? -30 - d*5 : 30 + (d-1)*5;
-                    bullets.push({x: player.x+off, y: player.y, vx: 0, vy: -12, s: 3, c: '#00ffff', dmg: 0.5});
+                    // 若有boss則追蹤boss，否則垂直發射
+                    let vx = 0, vy = -12;
+                    if(boss) {
+                        let dx = boss.x - (player.x+off), dy = boss.y - player.y;
+                        let dist = Math.hypot(dx, dy);
+                        vx = (dx/dist)*12; vy = (dy/dist)*12;
+                    }
+                    bullets.push({x: player.x+off, y: player.y, vx: vx, vy: vy, s: 4, c: '#00ffff', dmg: 0.6 * player.damage});
                 }
             }
 
-            // --- 敵方 AI ---
-            // Boss 邏輯
+            // 4. 敵方 AI 與生成
             if(boss) {
                 boss.phaseTimer += dt;
                 boss.moveAng += dt;
-                // S型平滑移動
                 boss.y = Math.min(80, boss.y + 60 * dt);
                 boss.x = canvas.width/2 + Math.sin(boss.moveAng) * 100;
                 
-                // 彈幕攻擊
-                if(boss.phaseTimer > 1.2 - (wave*0.05)) {
+                if(boss.phaseTimer > 1.0 - (wave*0.05)) {
                     boss.phaseTimer = 0;
                     boss.attackPhase = (boss.attackPhase + 1) % 2;
                     if(boss.attackPhase === 0) {
-                        // 鎖定玩家狙擊
                         let dx = player.x - boss.x, dy = player.y - boss.y;
                         let dist = Math.hypot(dx, dy);
-                        enemyBullets.push({x: boss.x, y: boss.y, vx: (dx/dist)*5, vy: (dy/dist)*5, r: 6, c: '#ff3333'});
+                        enemyBullets.push({x: boss.x, y: boss.y, vx: (dx/dist)*6, vy: (dy/dist)*6, r: 6, c: '#ff3333'});
                     } else {
-                        // 環狀彈幕
-                        for(let i=0; i<5; i++) {
-                            let a = (Math.PI/4) + (i * Math.PI/8);
+                        for(let i=0; i<6; i++) {
+                            let a = (Math.PI/5) + (i * Math.PI/6);
                             enemyBullets.push({x: boss.x, y: boss.y, vx: Math.cos(a)*4, vy: Math.sin(a)*4, r: 5, c: '#ff007f'});
                         }
                     }
                 }
-
-                // 畫Boss
+                // 畫 Boss (K線造型)
                 ctx.fillStyle = '#111'; ctx.strokeStyle = '#ff3333'; ctx.lineWidth=3;
-                ctx.fillRect(boss.x-40, boss.y-20, 80, 40); ctx.strokeRect(boss.x-40, boss.y-20, 80, 40);
-                ctx.fillStyle='#ff3333'; ctx.fillRect(boss.x-40, boss.y-30, 80*(boss.hp/boss.maxHp), 4);
-                ctx.fillStyle='#fff'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('三大法人', boss.x, boss.y+4);
+                ctx.fillRect(boss.x-30, boss.y-25, 60, 50); ctx.strokeRect(boss.x-30, boss.y-25, 60, 50);
+                // 血條
+                ctx.fillStyle='#ff3333'; ctx.fillRect(boss.x-40, boss.y-40, 80*(Math.max(0, boss.hp)/boss.maxHp), 6);
+                ctx.fillStyle='#fff'; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('外資母艦', boss.x, boss.y+5);
             }
 
-            // 一般散戶生成 (加入 AI 行為)
+            // 散戶生成
             spawnTimer += dt;
-            if(spawnTimer > Math.max(0.3, 1.2 - wave*0.1) && !boss) {
+            let spawnRate = player.marginRisk ? 0.6 : 1.2; 
+            if(spawnTimer > Math.max(0.2, spawnRate - wave*0.1) && !boss) {
                 spawnTimer = 0;
                 let type = Math.random(); 
-                // 0: 直線韭菜, 1: S型隔日沖, 2: 追蹤狙擊手
                 enemies.push({
                     x: Math.random()*(canvas.width-40)+20, y: -20, startX: 0,
                     vy: Math.random()*2 + 2 + wave*0.2,
-                    r: Math.random()*8 + 12,
-                    type: type < 0.6 ? 0 : (type < 0.85 ? 1 : 2),
+                    r: Math.random()*6 + 10,
+                    type: type < 0.6 ? 0 : (type < 0.85 ? 1 : 2), // 0直線, 1S型, 2狙擊
                     ang: 0
                 });
                 enemies[enemies.length-1].startX = enemies[enemies.length-1].x;
             }
 
-            // 物理與碰撞
+            // 5. 碰撞偵測與更新位置
+            // 敵方子彈
             for(let i=enemyBullets.length-1; i>=0; i--) {
                 let eb = enemyBullets[i]; eb.x += eb.vx; eb.y += eb.vy;
                 ctx.fillStyle = eb.c; ctx.beginPath(); ctx.arc(eb.x, eb.y, eb.r, 0, Math.PI*2); ctx.fill();
-                // 擊中玩家
-                if(Math.hypot(player.x - eb.x, player.y - eb.y) < eb.r + 10) {
-                    takeDamage(30000);
-                    enemyBullets.splice(i, 1);
+                if(Math.hypot(player.x - eb.x, player.y - eb.y) < eb.r + 8) {
+                    takeDamage(35000); enemyBullets.splice(i, 1);
                 } else if(eb.y > canvas.height) enemyBullets.splice(i, 1);
             }
 
+            // 散戶敵人
             for(let i=enemies.length-1; i>=0; i--) {
                 let e = enemies[i];
                 e.y += e.vy;
-                if(e.type === 1) { // S 型
-                    e.ang += dt * 3; e.x = e.startX + Math.sin(e.ang) * 40;
+                if(e.type === 1) { // 隔日沖(S型)
+                    e.ang += dt * 4; e.x = e.startX + Math.sin(e.ang) * 50;
                 } else if (e.type === 2 && e.y > canvas.height*0.2 && e.y < canvas.height*0.4) {
-                    // 停留並加速衝向玩家
+                    // 狙擊散戶
                     e.vy = 0;
-                    if(!e.aimed) { e.aimed = true; let dx = player.x-e.x, dy = player.y-e.y; let dist=Math.hypot(dx,dy); e.vx=(dx/dist)*6; e.vy=(dy/dist)*6; }
+                    if(!e.aimed) { e.aimed = true; let dx = player.x-e.x, dy = player.y-e.y; let dist=Math.hypot(dx,dy); e.vx=(dx/dist)*7; e.vy=(dy/dist)*7; }
                     e.x += e.vx || 0;
                 }
 
-                ctx.strokeStyle = '#ff334b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.stroke();
-                ctx.fillStyle = '#ff334b'; ctx.font = '10px sans-serif'; ctx.fillText(e.type===1?'隔日沖':'韭菜', e.x, e.y+3);
+                ctx.fillStyle = '#ff334b'; 
+                // 畫出跌停綠K線或紅K線造型
+                ctx.fillRect(e.x-e.r, e.y-e.r*1.5, e.r*2, e.r*3);
+                ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif'; ctx.fillText(e.type===1?'隔日沖':'散戶', e.x, e.y+2);
 
-                // 漏接懲罰
                 if(e.y > canvas.height+20) { takeDamage(20000); enemies.splice(i,1); continue; }
-                // 撞擊玩家
                 if(Math.hypot(player.x - e.x, player.y - e.y) < e.r + 12) {
-                    takeDamage(40000); enemies.splice(i,1); continue;
+                    takeDamage(45000); enemies.splice(i,1); continue;
                 }
 
                 // 被玩家子彈打中
@@ -387,52 +451,68 @@
                     if(Math.hypot(b.x - e.x, b.y - e.y) < e.r + b.s) {
                         bullets.splice(j, 1);
                         createExplosion(e.x, e.y, player.color, 5);
-                        let gain = 5000 * wave * stats.income;
-                        if(selectedHero === 'leon' && Math.random() < 0.25) { gain *= 3; floatTexts.push({x: e.x, y: e.y, txt: "暴擊!", col: '#39ff14', life: 0.8}); }
+                        
+                        let isCrit = Math.random() < player.critRate;
+                        let gain = 6000 * wave;
+                        if(isCrit) { gain *= 3; createFloatingText(e.x, e.y-10, "飆股爆發!", '#ffeb3b'); }
+                        
                         money += gain;
+                        createFloatingText(e.x, e.y, `+$${gain}`, '#00ff00');
                         enemies.splice(i, 1);
                         break;
                     }
                 }
             }
 
+            // 玩家子彈
             for(let i=bullets.length-1; i>=0; i--) {
                 let b = bullets[i]; b.x += b.vx; b.y += b.vy;
                 ctx.fillStyle = b.c; ctx.beginPath(); ctx.arc(b.x, b.y, b.s, 0, Math.PI*2); ctx.fill();
-                ctx.shadowBlur = 10; ctx.shadowColor = b.c; // 增加光暈
+                ctx.shadowBlur = 15; ctx.shadowColor = b.c; 
                 
                 // 打王
-                if(boss && Math.abs(b.x - boss.x) < 40 + b.s && Math.abs(b.y - boss.y) < 20 + b.s) {
-                    boss.hp -= 20 * b.dmg * wave;
+                if(boss && Math.abs(b.x - boss.x) < 30 + b.s && Math.abs(b.y - boss.y) < 25 + b.s) {
+                    let isCrit = Math.random() < player.critRate;
+                    let dmgValue = 20 * b.dmg * wave * (isCrit ? 2 : 1);
+                    boss.hp -= dmgValue;
                     bullets.splice(i, 1);
                     createExplosion(b.x, b.y, '#ffcd00', 3);
+                    
                     if(boss.hp <= 0) {
-                        money += 800000 * stats.income;
-                        screenShakeTime = 1.0; // 打敗王強烈震動
-                        createExplosion(boss.x, boss.y, '#ffcd00', 80);
-                        floatTexts.push({x: boss.x, y: boss.y, txt: "主力陣亡! +$800,000", col: '#ffcd00', life: 2});
+                        let bossBounty = 1000000 * wave;
+                        money += bossBounty;
+                        triggerShake(30, 20); // 打敗王強烈震動
+                        createExplosion(boss.x, boss.y, '#ffcd00', 100);
+                        createFloatingText(boss.x, boss.y, `主力陣亡! +$${bossBounty.toLocaleString()}`, '#ffcd00');
                         boss = null;
-                        setTimeout(showRogueUI, 1500); // 打完王給予升級
+                        setTimeout(triggerUpgradeMenu, 1500); // 打完王給予升級
                     }
                 } else if(b.y < -20 || b.x < -20 || b.x > canvas.width+20) bullets.splice(i, 1);
                 ctx.shadowBlur = 0;
             }
 
-            // 畫玩家
-            ctx.fillStyle = player.color; ctx.shadowBlur = 15; ctx.shadowColor = player.color;
+            // 6. 畫玩家機體
+            ctx.fillStyle = player.color; ctx.shadowBlur = 20; ctx.shadowColor = player.color;
             ctx.beginPath();
-            ctx.moveTo(player.x, player.y - 15); ctx.lineTo(player.x + 12, player.y + 10); ctx.lineTo(player.x - 12, player.y + 10);
+            ctx.moveTo(player.x, player.y - 18); ctx.lineTo(player.x + 15, player.y + 12); ctx.lineTo(player.x - 15, player.y + 12);
             ctx.fill(); ctx.shadowBlur = 0;
             
-            if(stats.drones > 0) {
+            // 畫浮游砲
+            if(player.drones > 0) {
                 ctx.fillStyle = '#00ffff';
-                for(let d=0; d<stats.drones; d++) {
-                    let off = d % 2 === 0 ? -32 - d*5 : 32 + (d-1)*5;
-                    ctx.fillRect(player.x + off - 3, player.y + 5, 6, 8);
+                for(let d=0; d<player.drones; d++) {
+                    let off = d % 2 === 0 ? -35 - d*5 : 35 + (d-1)*5;
+                    ctx.fillRect(player.x + off - 3, player.y + 5, 6, 10);
                 }
             }
+            // 畫護盾
+            if(player.hasShield) {
+                ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+                ctx.beginPath(); ctx.arc(player.x, player.y, 25, 0, Math.PI*2); ctx.stroke();
+                ctx.setLineDash([]);
+            }
 
-            // 畫粒子與浮動文字
+            // 7. 渲染特效與浮動文字
             particles.forEach((p, i) => {
                 p.x += p.vx; p.y += p.vy; p.life -= dt * 1.5;
                 ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.col;
@@ -442,40 +522,37 @@
             ctx.globalAlpha = 1.0;
 
             floatTexts.forEach((t, i) => {
-                t.y -= 25 * dt; t.life -= dt;
-                ctx.globalAlpha = Math.max(0, t.life); ctx.fillStyle = t.col;
-                ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(t.txt, t.x, t.y);
+                t.y += t.vy * dt; // 向上飄
+                t.life -= dt;
+                ctx.globalAlpha = Math.max(0, t.life / t.maxLife); 
+                ctx.fillStyle = t.col;
+                ctx.font = 'bold 16px "PingFang TC", sans-serif'; 
+                ctx.textAlign = 'center'; 
+                ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+                ctx.fillText(t.txt, t.x, t.y);
+                ctx.shadowBlur = 0;
                 if(t.life <= 0) floatTexts.splice(i, 1);
             });
             ctx.globalAlpha = 1.0;
 
             ctx.restore(); // 結束震動畫布層
 
-            // HUD 更新
-            let ratio = Math.max(0, Math.floor((money / 150000) * 120));
+            // 8. HUD 數據更新
+            let ratio = Math.max(0, Math.floor((money / maxMoney) * 120));
             document.getElementById('hud-wave').innerText = wave.toString().padStart(2, '0');
             document.getElementById('hud-money').innerText = `$${Math.floor(money).toLocaleString()}`;
+            
             const ratioEl = document.getElementById('hud-ratio');
+            const boxRatio = document.getElementById('box-ratio');
             ratioEl.innerText = `${ratio}%`;
-            ratioEl.style.color = ratio < 100 ? '#ff3333' : '#ff007f';
+            if(ratio < 100) {
+                ratioEl.style.color = '#ff3333';
+            } else {
+                ratioEl.style.color = '#ff007f';
+                boxRatio.style.borderColor = '#ff007f';
+            }
 
             requestAnimationFrame(gameLoop);
-        }
-
-        function takeDamage(amt) {
-            money -= amt;
-            screenShakeTime = 0.2;
-            createExplosion(player.x, player.y, '#ff3333', 15);
-            if(money <= 0) {
-                if(stats.revive > 0) {
-                    stats.revive--; money = 100000;
-                    floatTexts.push({x: player.x, y: player.y-30, txt: "寬限期觸發!", col: '#00ffff', life: 2});
-                } else {
-                    gameActive = false;
-                    document.getElementById('settle-score').innerText = `$${document.getElementById('hud-money').innerText.replace('$','')}`;
-                    overlays.settle.classList.remove('hidden');
-                }
-            }
         }
     </script>
 </body>
