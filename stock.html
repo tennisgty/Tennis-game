@@ -2,97 +2,185 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>CYBER TAIWAN 2026：絕命當沖 (Fable 5 Engine)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Taiwan 2026: 少年股神的不死逆轉晶片</title>
     <style>
-        body { margin:0; background:#050508; color:#00ff00; overflow:hidden; font-family: 'Courier New', monospace; }
-        #game-box { position:relative; width:100%; max-width:450px; height:100vh; margin:auto; border-left:1px solid #333; border-right:1px solid #333; }
-        canvas { width:100%; height:100%; display:block; }
+        body { margin: 0; background: #010206; overflow: hidden; touch-action: none; font-family: 'Segoe UI', 'Microsoft JhengHei', monospace; color: #fff; }
+        canvas { display: block; width: 100vw; height: 100vh; position: absolute; top:0; left:0; z-index: 1; }
+        
+        /* 全螢幕選單選框 */
+        .rpg-screen {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(4, 10, 20, 0.97); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 20px; box-sizing: border-box; z-index: 10; transition: all 0.3s;
+        }
+        .hidden { display: none !important; }
+        h1 { font-size: 28px; color: #0ff; text-shadow: 0 0 15px #0ff; margin-bottom: 5px; }
+        .sub-title { color: #22c55e; font-weight: bold; margin-bottom: 15px; }
+        
+        .lore-text { font-size: 13px; max-width: 550px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px; text-align: left; background: rgba(6, 182, 212, 0.05); padding: 15px; border-left: 4px solid #22c55e; }
+        
+        /* 晶片黑市交易所 */
+        .market-container { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; margin-bottom: 20px; }
+        .chip-card { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.9); padding: 10px 15px; border-radius: 8px; border: 1px solid #1e293b; font-size: 13px; text-align: left; }
+        .chip-info { flex-grow: 1; margin-right: 10px; }
+        .chip-name { font-weight: bold; font-size: 14px; }
+        .chip-cost { color: #eab308; font-weight: bold; }
+        .buy-btn { background: #22c55e; color: #000; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer; box-shadow: 0 0 8px #22c55e; }
+        .buy-btn:disabled { background: #475569; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
+        
+        .btn-prime { padding: 12px 35px; font-size: 16px; font-weight: bold; background: #0ff; color: #000; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 0 15px #0ff; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* HUD 戰術股票機介面 */
+        #combatHud { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #22c55e; text-shadow: 0 0 8px #22c55e; pointer-events: none; z-index: 5; }
+        .hud-panel { background: rgba(15, 23, 42, 0.7); padding: 6px 12px; border-radius: 6px; border: 1px solid #22c55e; }
+        
+        #metaAlert { position: absolute; top: 25%; left: 0; width: 100vw; text-align: center; color: #f43f5e; font-size: 26px; font-weight: bold; text-shadow: 0 0 20px #f43f5e; z-index: 4; pointer-events: none; display: none; }
+        #rewindIndicator { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(234, 179, 8, 0.2); border: 1px solid #eab308; padding: 4px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #eab308; animation: blink 1s infinite alternate; pointer-events: none; display: none; }
+        @keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-<div id="game-box"><canvas id="c"></canvas></div>
+
+    <div id="metaAlert">⚠️ 證交所警告：虛空大君惡意砸盤！ ⚠️</div>
+    <div id="rewindIndicator">⚡ 雙擊螢幕或按空白鍵：發動「少年股神逆轉術」(違約交割倒帶) ⚡</div>
+
+    <div id="combatHud" class="hidden">
+        <div class="hud-panel">虛擬台股代號: <span id="hudFloor" style="color:#eab308">第 1 案</span></div>
+        <div class="hud-panel">持有資產(點數): <span id="hudCash" style="color:#eab308">0</span> 點</div>
+        <div class="hud-panel" style="color:#f43f5e">護盾保證金: <span id="hudHp">100</span>%</div>
+    </div>
+
+    <div id="screenIntro" class="rpg-screen">
+        <h1>CYBER TAIWAN 2026</h1>
+        <div class="sub-title">《少年股神：虛空非法外掛電路板》</div>
+        <div class="lore-text">
+            【故事背景】2026年，台灣加權指數突破前所未有的虛空點數。你是一名在竹科爆肝的工程師，意外解鎖了外星科技「時空逆轉電路板」。當遭遇黑天鵝暴跌（地獄彈幕）時，你可以強行「倒帶時間」逆轉違約交割！現在，進入非法黑市，用護國神山晶片武裝你的貓咪戰機。
+        </div>
+        <button class="btn-prime" onclick="initAudioAndEnterHub()">初始化音訊並登入交易所</button>
+    </div>
+
+    <div id="screenHub" class="rpg-screen hidden">
+        <h1>【竹科地下晶片交易所】</h1>
+        <p>目前可用虛空點數(資金): <span id="hubPoints" style="color:#eab308; font-weight:bold; font-size:18px;">0</span> 點</p>
+        
+        <div class="market-container">
+            <div class="chip-card">
+                <div class="chip-info">
+                    <div class="chip-name" style="color:#60a5fa;">💾 2330 護國神山晶片 (台積電)</div>
+                    <div style="color:#94a3b8; font-size:11px;">終極工藝：大幅提升攻擊力與彈幕體積</div>
+                </div>
+                <div>
+                    <span class="chip-cost">12 點</span> <button id="btnTSMC" class="buy-btn" onclick="buyChip('TSMC', 12)">購買</button>
+                </div>
+            </div>
+            <div class="chip-card">
+                <div class="chip-info">
+                    <div class="chip-name" style="color:#f43f5e;">🥬 當沖韭菜核心晶片 (融資開滿)</div>
+                    <div style="color:#94a3b8; font-size:11px;">風險極高：射速極限超載，但降低護盾上限</div>
+                </div>
+                <div>
+                    <span class="chip-cost">3 點</span> <button id="btnChive" class="buy-btn" onclick="buyChip('CHIVE', 3)">購買</button>
+                </div>
+            </div>
+            <div class="chip-card">
+                <div class="chip-info">
+                    <div class="chip-name" style="color:#22c55e;">🚢 航海王飆股晶片 (萬海長榮)</div>
+                    <div style="color:#94a3b8; font-size:11px;">暴力流派：解鎖左右兩側量子「雙子浮游砲」</div>
+                </div>
+                <div>
+                    <span class="chip-cost">6 點</span> <button id="btnShip" class="buy-btn" onclick="buyChip('SHIP', 6)">購買</button>
+                </div>
+            </div>
+        </div>
+        
+        <p style="font-size:11px; color:#94a3b8; margin:0 0 10px 0;">已安裝外掛晶片: <span id="installedChips" style="color:#0ff;">無</span></p>
+        <button class="btn-prime" style="background:#22c55e; box-shadow:0 0 15px #22c55e;" onclick="startCombat()">開盤！進入虛空戰場湊資金</button>
+    </div>
+
+    <div id="screenGameOver" class="rpg-screen hidden">
+        <h1 style="color:#f43f5e; text-shadow:0 0 15px #f43f5e;">【融資維持率不足・強制斷頭】</h1>
+        <p id="overDesc">你被大戶割肉了。但在黑市中購買的非法晶片已永久焊接在主機板上！</p>
+        <button class="btn-prime" onclick="enterHub()">重新募集資金(復活)</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
 
 <script>
-/** * Fable 5 整合型遊戲引擎 
- * 包含：動態難度、Rogue-lite 隨機天賦、金融打擊反饋
- */
-const canvas = document.getElementById('c');
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 450; canvas.height = 800;
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
-let G = {
-    money: 100000,
-    difficulty: 1,
-    time: 0,
-    shake: 0,
-    active: true,
-    player: { x: 225, y: 700, size: 20 },
-    enemies: [],
-    upgrades: ['⚡ 射速翻倍', '🛡️ 國安護盤', '🚀 爆擊增幅'],
-    showMenu: false
-};
+// --- ⚙️ 零延遲台流音效引擎 ⚙️ ---
+let audioCtx = null;
+let lastSoundTime = { shoot: 0, explosion: 0, loot: 0, meta: 0, rewind: 0 };
 
-function triggerShake(val) { G.shake = val; }
-
-function loop() {
-    if (!G.active) return;
-    
-    // 震動處理
-    let dx = G.shake > 0 ? (Math.random()-0.5)*G.shake : 0;
-    let dy = G.shake > 0 ? (Math.random()-0.5)*G.shake : 0;
-    if(G.shake > 0) G.shake *= 0.9;
-
-    ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,450,800);
-
-    // 難度遞增
-    G.time += 0.01;
-    G.difficulty = 1 + G.time / 20;
-
-    // 敵人邏輯
-    if (Math.random() < 0.02 * G.difficulty) {
-        G.enemies.push({ x: Math.random()*400, y: -30, v: 2 + G.difficulty });
-    }
-
-    G.enemies.forEach((e, i) => {
-        e.y += e.v;
-        ctx.fillStyle = '#ff334b';
-        ctx.fillRect(e.x, e.y, 30, 30);
-        
-        // 碰撞檢查 (簡化)
-        if (Math.abs(e.x - G.player.x) < 30 && Math.abs(e.y - G.player.y) < 30) {
-            triggerShake(20);
-            G.money -= 20000;
-            G.enemies.splice(i, 1);
-        }
-        if (e.y > 800) G.enemies.splice(i, 1);
-    });
-
-    // 繪製玩家
-    ctx.fillStyle = '#00ff00';
-    ctx.fillRect(G.player.x - 10, G.player.y - 10, G.player.size, G.player.size);
-
-    // UI
-    ctx.fillStyle = '#00ff00';
-    ctx.fillText(`資產: $${Math.floor(G.money)} | 難度: ${G.difficulty.toFixed(1)}`, 10, 20);
-
-    if (G.money <= 0) {
-        G.active = false;
-        ctx.fillStyle = 'red';
-        ctx.font = '30px Courier New';
-        ctx.fillText('違約交割！公園已滿', 80, 400);
-    }
-    
-    ctx.save();
-    ctx.translate(dx, dy);
-    ctx.restore();
-    requestAnimationFrame(loop);
+function initAudioAndEnterHub() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    enterHub();
 }
 
-window.addEventListener('mousemove', e => {
-    G.player.x = e.clientX - canvas.getBoundingClientRect().left;
-});
+function playSound(type) {
+    if (!audioCtx || audioCtx.state === 'suspended') return;
+    const nowMs = Date.now();
+    if (nowMs - lastSoundTime[type] < 60) return;
+    lastSoundTime[type] = nowMs;
+    
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    
+    if (type === 'shoot') {
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
+        gainNode.gain.setValueAtTime(0.04, now); osc.start(now); osc.stop(now + 0.05);
+    } else if (type === 'explosion') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now);
+        osc.frequency.linearRampToValueAtTime(20, now + 0.15);
+        gainNode.gain.setValueAtTime(0.12, now); osc.start(now); osc.stop(now + 0.15);
+    } else if (type === 'loot') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, now); // Do
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // Mi
+        gainNode.gain.setValueAtTime(0.1, now); osc.start(now); osc.stop(now + 0.2);
+    } else if (type === 'rewind') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.4); // 倒帶科幻拉高音
+        gainNode.gain.setValueAtTime(0.2, now); osc.start(now); osc.stop(now + 0.4);
+    } else if (type === 'meta') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(90, now);
+        osc.frequency.linearRampToValueAtTime(130, now + 0.5);
+        gainNode.gain.setValueAtTime(0.2, now); osc.start(now); osc.stop(now + 0.5);
+    }
+}
 
-loop();
-</script>
-</body>
-</html>
+// --- 🎮 遊戲核心與台股晶片狀態庫 🎮 ---
+let player = {
+    points: 0, floor: 1, killCount: 0,
+    hp: 100, maxHp: 100, dmgMultiplier: 1.0, fireSpeedBonus: 0,
+    x: canvas.width/2-30, y: canvas.height-160, w: 60, h: 50, angle: 0, targetX: canvas.width/2-30,
+    droneRot: 0, 
+    chips: { TSMC: false, CHIVE: false, SHIP: false } // 已解鎖的台灣特製晶片
+};
+
+let gameState = 'INTRO', bullets = [], enemies = [], particles = [], loots = [], stars = [], dmgs = [];
+let boss = null;
+let lastSpawn = 0, lastShot = 0, screenShake = 0, flashBg = 0;
+let metaTriggered = false; // 追蹤第四面牆Meta事件
+
+// 【💡 核心：歷史軌跡記憶系統（防當機倒帶型）】
+let history = []; 
+const MAX_HISTORY = 180; // 記住過去 3 秒（60fps * 3 = 180幀）
+let isRewinding = false; // 倒帶狀態旗標
+let rewindCooldown = 0;
+
+for(let i=0; i<35; i++) stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2+1, c: '#1e293b'});
+
+// --- ⌨️ 手勢滑鼠與操作監聽 ⌨️ ---
+window.addEventListener('touchmove', (e) => {
+    if(gameState === 'COMBAT' && !isRewinding) player.targetX = e.touches[0].clientX - 30;
+}, { passive: true });
+
+window.addEventListener('mousemo
